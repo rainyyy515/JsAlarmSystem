@@ -1,0 +1,93 @@
+﻿@{
+    ViewData["Title"] = "Juno Line Alram System";
+}
+
+<div class="text-center px-3">
+    <form class="d-flex" role="search">
+        <input class="form-control me-2" type="search" placeholder="編號或地點查詢" aria-label="Search">
+        <button class="btn btn-outline-primary" type="submit">
+            <i class="bi bi-search"></i>
+        </button>
+    </form>
+    <h1 class="display-6 mt-3 fw-bold text-start">警報項目</h1>
+    <table class="table table-secondary table-hover border border-5">
+        <thead>
+            <tr class="bg-primary">
+                <th scope="col">編號</th>
+                <th scope="col">地點</th>
+                <th scope="col">欄位</th>
+                <th scope="col">欄位名稱</th>
+                <th scope="col">閾值</th>
+                <th scope="col">警報時區</th>
+                <th scope="col" style="width:150px;"></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <th scope="row">1</th>
+                <td>Mark</td>
+                <td>Otto</td>
+                <td>3</td>
+                <td>3</td>
+                <td>3</td>
+                <td>
+                    <button class="btn btn-primary p-0 px-2">
+                        <i class="bi bi-pencil-fill"></i>
+                    </button>
+                    <button class="btn btn-danger p-0 px-2">
+                        <i class="bi bi-trash3-fill"></i>
+                    </button>
+                </td>
+            </tr>
+            <tr>
+                <th scope="row">2</th>
+                <td>Jacob</td>
+                <td>Thornton</td>
+                <td>3</td>
+                <td>3</td>
+                <td>3</td>
+                <td>
+                    <button class="btn btn-primary p-0 px-2">
+                        <i class="bi bi-pencil-fill"></i>
+                    </button>
+                    <button class="btn btn-danger p-0 px-2">
+                        <i class="bi bi-trash3-fill"></i>
+                    </button>
+                </td>
+            </tr>
+            <tr>
+                <th scope="row">3</th>
+                <td>3</td>
+                <td>3</td>
+                <td>3</td>
+                <td>3</td>
+                <td>3</td>
+                <td>
+                    <button class="btn btn-primary p-0 px-2">
+                        <i class="bi bi-pencil-fill"></i>
+                    </button>
+                    <button class="btn btn-danger p-0 px-2">
+                        <i class="bi bi-trash3-fill"></i>
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <nav class="d-flex justify-content-end" aria-label="Page navigation example">
+        <ul class="pagination">
+            <li class="page-item">
+                <a class="page-link" href="#">
+                    <i class="bi bi-chevron-left"></i>
+                </a>
+            </li>
+            <li class="page-item"><a class="page-link" href="#">1</a></li>
+            <li class="page-item"><a class="page-link" href="#">2</a></li>
+            <li class="page-item"><a class="page-link" href="#">3</a></li>
+            <li class="page-item">
+                <a class="page-link" href="#">
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</div>

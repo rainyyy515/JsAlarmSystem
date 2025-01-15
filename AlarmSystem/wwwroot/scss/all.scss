@@ -1,0 +1,51 @@
+﻿// Configuration
+@import "../lib/bootstrap/scss/_functions.scss";
+@import "helper/_variables.scss";
+@import "helper/_variables-dark.scss";
+@import "../lib/bootstrap/scss/_maps";
+@import "../lib/bootstrap/scss/_mixins";
+@import "helper/_utilities.scss";
+
+// Layout & components
+//保留bootstrap預設值
+@import "../lib/bootstrap/scss/_root";
+@import "../lib/bootstrap/scss/_reboot";
+@import "../lib/bootstrap/scss/_type";
+
+@import "../lib/bootstrap/scss/_images";
+@import "../lib/bootstrap/scss/_containers";
+@import "../lib/bootstrap/scss/_grid";
+@import "../lib/bootstrap/scss/_tables";
+@import "../lib/bootstrap/scss/_forms";
+@import "../lib/bootstrap/scss/_buttons";
+@import "../lib/bootstrap/scss/_transitions";
+@import "../lib/bootstrap/scss/_dropdown";
+@import "../lib/bootstrap/scss/_button-group";
+@import "../lib/bootstrap/scss/_nav";
+@import "../lib/bootstrap/scss/_navbar";
+@import "../lib/bootstrap/scss/_button-group";
+@import "../lib/bootstrap/scss/_breadcrumb";
+@import "../lib/bootstrap/scss/_pagination";
+@import "../lib/bootstrap/scss/_progress";
+@import "../lib/bootstrap/scss/_list-group";
+@import "../lib/bootstrap/scss/_close";
+@import "../lib/bootstrap/scss/_offcanvas";
+
+
+// Helpers
+@import "../lib/bootstrap/scss/_helpers";
+
+// Utilities
+@import "../lib/bootstrap/scss/utilities/_api";
+
+body {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+}
+#container {
+    position: relative;
+}
+.ps__rail-y:hover {
+    background-color: $primary !important;
+}

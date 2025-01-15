@@ -1,0 +1,14 @@
+{
+  "version": "1.0",
+  "defaultProvider": "cdnjs",
+  "libraries": [
+    {
+      "library": "perfect-scrollbar@1.5.6",
+      "destination": "wwwroot/perfect-scrollbar/",
+      "files": [
+        "perfect-scrollbar.min.js",
+        "css/perfect-scrollbar.min.css"
+      ]
+    }
+  ]
+}
