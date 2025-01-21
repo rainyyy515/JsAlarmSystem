@@ -16,15 +16,15 @@
    "T4TemplatePath": null,
    "Tables": [
       {
-         "Name": "[dbo].[AlarmItems]",
+         "Name": "[dbo].[AlarmGroup]",
          "ObjectType": 0
       },
       {
-         "Name": "[dbo].[LineGroups]",
+         "Name": "[dbo].[AlarmItem]",
          "ObjectType": 0
       },
       {
-         "Name": "[dbo].[Sysadmin]",
+         "Name": "[jsene].[AlarmSettings]",
          "ObjectType": 0
       }
    ],

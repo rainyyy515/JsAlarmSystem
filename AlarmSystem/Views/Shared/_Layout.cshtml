@@ -33,56 +33,19 @@
             <path d="M1 2.5A1.5 1.5 0 0 1 2.5 1h3A1.5 1.5 0 0 1 7 2.5v3A1.5 1.5 0 0 1 5.5 7h-3A1.5 1.5 0 0 1 1 5.5v-3zM2.5 2a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zm6.5.5A1.5 1.5 0 0 1 10.5 1h3A1.5 1.5 0 0 1 15 2.5v3A1.5 1.5 0 0 1 13.5 7h-3A1.5 1.5 0 0 1 9 5.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zM1 10.5A1.5 1.5 0 0 1 2.5 9h3A1.5 1.5 0 0 1 7 10.5v3A1.5 1.5 0 0 1 5.5 15h-3A1.5 1.5 0 0 1 1 13.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zm6.5.5A1.5 1.5 0 0 1 10.5 9h3a1.5 1.5 0 0 1 1.5 1.5v3a1.5 1.5 0 0 1-1.5 1.5h-3A1.5 1.5 0 0 1 9 13.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3z" />
         </symbol>
     </svg>
-    <div class="d-flex vh-100">
-        <div id="sidebars" class="d-flex flex-column flex-shrink-0 p-3 text-bg-primary px-0" style="width: 280px;">
-            <a class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none ps-3" asp-controller="Home" asp-action="Index">
+    <div class="d-flex">
+        <div id="sidebars" class="d-flex flex-column flex-shrink-0 p-3 text-bg-primary px-0 fixed-start" style="width: 280px;">
+            <a class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none ps-3" asp-controller="Alarm" asp-action="Index">
                 <img class="mb-1" src="~/favicon.ico" alt="js" />
                 <span class="fs-4 ps-2">警報系統</span>
             </a>
             <hr>
             <ul id="container" class="list-unstyled mb-auto overflow-hidden">
-                <li>
-                    <button class="btn text-secondary border-0" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
-                        <i class="bi bi-star-fill"></i>
-                        群組1
-                        <i class="bi bi-caret-right-fill"></i>
-                    </button>
-                    <div class="collapse px-3" id="collapseExample">
-                        <div class="card card-body">
-                            <ul class="list-unstyled">
-                                <li>
-                                    <a class="btn btn-outline-secondary border-0 bg-transparent" href="#">123456</a>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </li>
-                <li>
-                    <button class="btn text-secondary border-0" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample2" aria-expanded="false" aria-controls="collapseExample2">
-                        <i class="bi bi-star-fill"></i>
-                        群組2
-                        <i class="bi bi-caret-right-fill"></i>
-                    </button>
-                    <div class="collapse px-3" id="collapseExample2">
-                        <div class="card card-body ps-3">
-                            Some placeholder content for the collapse component. This panel is hidden by default but revealed when the user activates the relevant trigger.
-                        </div>
-                    </div>
-                </li>
-                @for (int i = 0; i < 30; i++)
-                {
-                    <li>
-                        <button class="btn text-secondary border-0" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample2" aria-expanded="false" aria-controls="collapseExample2">
-                            <i class="bi bi-star-fill"></i>
-                            群組 @i
-                            <i class="bi bi-caret-right-fill"></i>
-                        </button>
-                    </li>
-                }
+                @await Component.InvokeAsync("GroupAlarmList")
             </ul>
         </div>
-        <div class="container-fluid p-0 bg-secondary">
-            <main role="main" class="d-flex flex-column justify-content-between h-100">
+        <div id="content" class="bg-secondary flex-grow-1" style="margin-left:280px;">
+            <main role="main" class="d-flex flex-column justify-content-between min-vh-100">
                 <div>
                     <header>
                         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
@@ -116,7 +79,7 @@
                     </header>
                     @RenderBody()
                 </div>
-                <footer class="border-top footer text-muted align-self-end">
+                <footer class="border-top footer text-muted">
                     <div class="container">
                         &copy; 2024 - JseneAlarmSystem
                     </div>

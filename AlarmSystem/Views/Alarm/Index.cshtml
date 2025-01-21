@@ -1,0 +1,88 @@
+﻿@model IEnumerable<AlarmSystem.Models.AlarmGroup>
+@{
+    ViewData["Title"] = "Juno Line Alram System";
+}
+
+<div class="text-center px-3">
+    @* <form class="d-flex" role="search">
+        <input class="form-control me-2" type="search" placeholder="群組名稱查詢" aria-label="Search">
+        <button class="btn btn-outline-primary" type="submit">
+            <i class="bi bi-search"></i>
+        </button>
+    </form> *@
+    <h1 class="display-6 mt-3 fw-bold text-start">警報群組</h1>
+    <div class="overflow-y-scroll border border-5" style="height:700px;">
+        <table class="table table-secondary table-hover">
+            <thead>
+                <tr class="bg-primary">
+                    <th scope="col">GroupId</th>
+                    <th scope="col">群組名稱</th>
+                    <th scope="col">是否啟用</th>
+                    <th scope="col">建立時間</th>
+                    <th scope="col" style="width:150px;"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var alarmGroup in Model)
+                {
+                    <tr>
+                        <th scope="row">@alarmGroup.GroupId</th>
+                        <td>@alarmGroup.GroupName</td>
+                        <td>@alarmGroup.Enable</td>
+                        <td>@alarmGroup.CreateDate</td>
+                        <td>
+                            <a class="btn btn-primary p-0 px-2" asp-controller="Alarm" asp-action="Edit" asp-route-groupId="@alarmGroup.GroupId">
+                                <i class="bi bi-pencil-fill"></i>
+                            </a>
+                            <button type="button" class="btn btn-danger p-0 px-2" data-bs-toggle="modal" data-bs-target="#Modal_@alarmGroup.GroupId">
+                                <i class="bi bi-trash3-fill"></i>
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    @* <nav class="d-flex justify-content-end" aria-label="Page navigation example">
+        <ul class="pagination">
+            <li class="page-item">
+                <a class="page-link" href="#">
+                    <i class="bi bi-chevron-left"></i>
+                </a>
+            </li>
+            <li class="page-item"><a class="page-link" href="#">1</a></li>
+            <li class="page-item"><a class="page-link" href="#">2</a></li>
+            <li class="page-item"><a class="page-link" href="#">3</a></li>
+            <li class="page-item">
+                <a class="page-link" href="#">
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+            </li>
+        </ul>
+    </nav> *@
+</div>
+@foreach (var group in Model)
+{
+    <div class="modal fade" id="Modal_@group.GroupId" tabindex="-1" aria-labelledby="ModalLabel_@group.GroupId" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form asp-controller="Alarm" asp-action="Delete" asp-route-groupId="@group.GroupId" method="post">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5 text-danger" id="ModalLabel_@group.GroupId">
+                            <i class="bi bi-exclamation-triangle-fill"></i> 確定要刪除嗎?
+                        </h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        GroupId： @group.GroupId
+                        @Html.AntiForgeryToken()
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+                        <button type="submit" class="btn btn-primary">確定</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}

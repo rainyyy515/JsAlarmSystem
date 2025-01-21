@@ -23,13 +23,23 @@
 @import "../lib/bootstrap/scss/_button-group";
 @import "../lib/bootstrap/scss/_nav";
 @import "../lib/bootstrap/scss/_navbar";
-@import "../lib/bootstrap/scss/_button-group";
+@import "../lib/bootstrap/scss/card";
+@import "../lib/bootstrap/scss/accordion";
 @import "../lib/bootstrap/scss/_breadcrumb";
 @import "../lib/bootstrap/scss/_pagination";
+@import "../lib/bootstrap/scss/badge";
+@import "../lib/bootstrap/scss/alert";
 @import "../lib/bootstrap/scss/_progress";
 @import "../lib/bootstrap/scss/_list-group";
 @import "../lib/bootstrap/scss/_close";
+@import "../lib/bootstrap/scss/toasts";
+@import "../lib/bootstrap/scss/modal";
+@import "../lib/bootstrap/scss/tooltip";
+@import "../lib/bootstrap/scss/popover";
+@import "../lib/bootstrap/scss/carousel";
+@import "../lib/bootstrap/scss/spinners";
 @import "../lib/bootstrap/scss/_offcanvas";
+@import "../lib/bootstrap/scss/placeholders";
 
 
 // Helpers
@@ -48,4 +58,10 @@ body {
 }
 .ps__rail-y:hover {
     background-color: $primary !important;
+}
+.fixed-start {
+    position: fixed;
+    top: 0;
+    bottom:0;
+    z-index: 1030;
 }

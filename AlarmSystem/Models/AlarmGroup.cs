@@ -5,11 +5,15 @@ using System.Collections.Generic;
 
 namespace AlarmSystem.Models;
 
-public partial class LineGroups
+public partial class AlarmGroup
 {
     public string GroupId { get; set; }
 
     public string GroupName { get; set; }
 
     public bool Enable { get; set; }
+
+    public DateTime CreateDate { get; set; }
+
+    public virtual ICollection<AlarmItem> AlarmItem { get; set; } = new List<AlarmItem>();
 }

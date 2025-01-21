@@ -21,11 +21,18 @@
 });
 $('#listBtn').on('click', function () {
     const $sidebar = $('#sidebars');
+    const $content = $('#content');
     const currentWidth = $sidebar.width();
     if (currentWidth > 0) {
-        $sidebar.animate({ width: '0','opacity':'0' }, 400);
+        $sidebar.animate({ width: '0' }, 150, function () {
+            $sidebar.css({ 'visibility': 'hidden' });
+        });
+        $content.animate({ 'margin-left': '0' }, 150);
     } else {
-        $sidebar.animate({ width: '280px', 'opacity':'1' }, 400);
+        $sidebar.animate({ width: '280px'}, 150, function () {
+            $sidebar.css({ visibility: 'visible' })
+        });
+        $content.animate({ 'margin-left': '280px' }, 150);
     }
 });
 const ps = new
