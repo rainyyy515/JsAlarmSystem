@@ -11,58 +11,52 @@
         </button>
     </form> *@
     <h1 class="display-6 mt-3 fw-bold text-start">警報群組</h1>
-    <div class="overflow-y-scroll border border-5" style="height:700px;">
-        <table class="table table-secondary table-hover">
-            <thead>
-                <tr class="bg-primary">
-                    <th scope="col">GroupId</th>
-                    <th scope="col">群組名稱</th>
-                    <th scope="col">是否啟用</th>
-                    <th scope="col">建立時間</th>
-                    <th scope="col" style="width:150px;"></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var alarmGroup in Model)
-                {
-                    <tr>
-                        <th scope="row">@alarmGroup.GroupId</th>
-                        <td>@alarmGroup.GroupName</td>
-                        <td>@alarmGroup.Enable</td>
-                        <td>@alarmGroup.CreateDate</td>
-                        <td>
-                            <a class="btn btn-primary p-0 px-2" asp-controller="Alarm" asp-action="Edit" asp-route-groupId="@alarmGroup.GroupId">
-                                <i class="bi bi-pencil-fill"></i>
-                            </a>
-                            <button type="button" class="btn btn-danger p-0 px-2" data-bs-toggle="modal" data-bs-target="#Modal_@alarmGroup.GroupId">
-                                <i class="bi bi-trash3-fill"></i>
-                            </button>
-                        </td>
+    <div class="d-flex">
+        <div>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#Modal_group">
+                <i class="bi bi-plus-lg"></i> 新增群組
+            </button>
+        </div>
+        <div class="overflow-y-scroll border border-5 col-10 mx-auto" style="height:700px;">
+            <table class="table table-secondary table-hover">
+                <thead>
+                    <tr class="bg-primary">
+                        <th scope="col">Token</th>
+                        <th scope="col">群組名稱</th>
+                        <th scope="col">是否啟用</th>
+                        <th scope="col">建立時間</th>
+                        <th scope="col" style="width:150px;"></th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach (var alarmGroup in Model)
+                    {
+                        <tr>
+                            <th scope="row">@alarmGroup.GroupId</th>
+                            <td>@alarmGroup.GroupName</td>
+                            <td>@alarmGroup.Enable</td>
+                            <td>@alarmGroup.CreateDate</td>
+                            <td>
+                                <button type="button" class="btn btn-primary p-0 px-2" data-bs-toggle="modal" data-bs-target="#ModalItem_@alarmGroup.GroupId">
+                                    <i class="bi bi-plus-lg"></i>
+                                </button>
+                                <button type="button" class="btn btn-primary p-0 px-2" data-bs-toggle="modal" data-bs-target="#Edit_@alarmGroup.GroupId">
+                                    <i class="bi bi-pencil-fill"></i>
+                                </button>
+                                <button type="button" class="btn btn-danger p-0 px-2" data-bs-toggle="modal" data-bs-target="#Modal_@alarmGroup.GroupId">
+                                    <i class="bi bi-trash3-fill"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
-    @* <nav class="d-flex justify-content-end" aria-label="Page navigation example">
-        <ul class="pagination">
-            <li class="page-item">
-                <a class="page-link" href="#">
-                    <i class="bi bi-chevron-left"></i>
-                </a>
-            </li>
-            <li class="page-item"><a class="page-link" href="#">1</a></li>
-            <li class="page-item"><a class="page-link" href="#">2</a></li>
-            <li class="page-item"><a class="page-link" href="#">3</a></li>
-            <li class="page-item">
-                <a class="page-link" href="#">
-                    <i class="bi bi-chevron-right"></i>
-                </a>
-            </li>
-        </ul>
-    </nav> *@
 </div>
 @foreach (var group in Model)
 {
+    <!-- Modal 刪除群組 -->
     <div class="modal fade" id="Modal_@group.GroupId" tabindex="-1" aria-labelledby="ModalLabel_@group.GroupId" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -85,4 +79,128 @@
             </div>
         </div>
     </div>
+    <!-- Modal 編輯群組 -->
+    <div class="modal fade" id="Edit_@group.GroupId" tabindex="-1" aria-labelledby="EditLabel_@group.GroupId" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form class="needs-validation" asp-controller="Alarm" asp-action="GroupEdit" method="post" novalidate>
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="EditLabel_@group.GroupId">
+                            <i class="bi bi-pencil-fill"></i> @group.GroupName 編輯
+                        </h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        @Html.AntiForgeryToken()
+                        <div class="mb-3">
+                            <label for="editToken_@group.GroupId" class="form-label">群組Token</label>
+                            <input type="text" class="form-control" id="editToken_@group.GroupId" name="GroupId" value="@group.GroupId" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editName_@group.GroupId" class="form-label">群組名稱</label>
+                            <input type="text" class="form-control" id="editName_@group.GroupId" name="GroupName" value="@group.GroupName" required>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="Enable" id="enable_@group.GroupId" value="true" @(group.Enable ? "checked" : "")>
+                            <label class="form-check-label" for="enable_@group.GroupId">
+                                是否啟用
+                            </label>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+                        <button type="submit" class="btn btn-primary">確定</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- Modal 新增警報項目 -->
+    <div class="modal fade" id="ModalItem_@group.GroupId" tabindex="1" aria-labelledby="ModalLabelItem_@group.GroupId" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form class="needs-validation" asp-controller="Alarm" asp-action="CreateItem" method="post" novalidate>
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="ModalLabelItem_@group.GroupId">
+                            <i class="bi bi-plus-circle"></i> 新增微型感測
+                        </h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        @Html.AntiForgeryToken()
+                        <div>
+                            <input type="hidden" class="form-control" name="GroupId" value="@group.GroupId" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="stid" class="form-label">Stid</label>
+                            <input type="text" class="form-control" id="stid" name="Stid" value="" required>
+                            <div class="invalid-feedback">
+                               Stid 必填
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="location" class="form-label">地點</label>
+                            <input type="text" class="form-control" id="location" name="Location" value="" required>
+                            <div class="invalid-feedback">
+                                地點必填
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="delay" class="form-label">延遲時間</label>
+                            <input type="number" class="form-control" id="delay" name="DelayTime" value="60" min="1" required>
+                            <div class="invalid-feedback">
+                                必須大於1分鐘
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+                        <button type="submit" class="btn btn-primary">確定</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 }
+<!-- Modal 新增群組 -->
+<div class="modal fade" id="Modal_group" tabindex="-1" aria-labelledby="ModalLabel_group" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form class="needs-validation" asp-controller="Alarm" asp-action="CreateGroup" method="post" novalidate>
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="ModalLabel_group">
+                        新增群組
+                    </h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    @Html.AntiForgeryToken()
+                    <div class="mb-3">
+                        <label for="token" class="form-label">群組Token</label>
+                        <input type="text" class="form-control" id="token" name="GroupId" value="" required>
+                        <div class="invalid-feedback">
+                            群組 Token 必填
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="groupName" class="form-label">群組名稱</label>
+                        <input type="text" class="form-control" id="groupName" name="GroupName" value="" required>
+                        <div class="invalid-feedback">
+                            群組名稱必填
+                        </div>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="Enable" id="flexCheckChecked" value="true" checked>
+                        <label class="form-check-label" for="flexCheckChecked">
+                            是否啟用
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+                    <button type="submit" class="btn btn-primary">確定</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

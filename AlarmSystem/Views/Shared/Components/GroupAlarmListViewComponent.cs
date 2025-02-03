@@ -3,13 +3,13 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace AlarmSystem.Views.Shared.Components
 {
-    public class GroupAlarmListViewComponent(AlarmService alarmService) : ViewComponent
+    public class GroupAlarmListViewComponent(GroupService groupService) : ViewComponent
     {
-        private readonly AlarmService _alarmService = alarmService;
+        private readonly GroupService _groupService = groupService;
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            var alarms = await _alarmService.GetGroupAlarmList();
+            var alarms = await  _groupService.GetGroupAlarmList();
             return View(alarms);
         }
     }

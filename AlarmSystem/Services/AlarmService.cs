@@ -1,7 +1,5 @@
 ﻿using AlarmSystem.Models;
-using AlarmSystem.ViewModels;
 using Microsoft.EntityFrameworkCore;
-using System.Text.RegularExpressions;
 
 namespace AlarmSystem.Services
 {
@@ -9,64 +7,50 @@ namespace AlarmSystem.Services
     {
         private readonly Js_LineAlarmContext _context = context;
 
-        public async Task<IEnumerable<GroupAlarmListViewModel>> GetGroupAlarmList()
+        
+        public async Task<IEnumerable<AlarmItem>> GetAlarmItem(string? groupId)
         {
-            var result = await (from g in _context.AlarmGroup
-                                select new GroupAlarmListViewModel
-                                {
-                                    GroupId = g.GroupId,
-                                    GroupName = g.GroupName,
-                                    Enable = g.Enable,
-                                    CreateDate = g.CreateDate,
-                                    AlarmItems = (from a in _context.AlarmItem
-                                                  where g.GroupId == a.GroupId
-                                                  select new AlarmItemViewModel
-                                                  {
-                                                      Stid = a.Stid,
-                                                      Location = a.Location,
-                                                      DelayTime = a.DelayTime,
-                                                  }).ToList()
-                                }).ToListAsync();
-
-            return result;
-        }
-        public async Task<IEnumerable<AlarmGroup>> GetGroup(string? groupId)
-        {
-            var result = _context.AlarmGroup.Where(x => x.GroupId == groupId);
+            var result = _context.AlarmItem.Where(x => x.GroupId == groupId);
             if (groupId == null)
-            {
-                result = _context.AlarmGroup;
-            }
-            return await result.ToListAsync();
-        }
-        public async Task<IEnumerable<AlarmItem>> GetAlarms(string? stid)
-        {
-            var result = _context.AlarmItem.Where(x => x.Stid == stid);
-            if (stid == null)
             {
                 result = _context.AlarmItem;
             }
             return await result.ToListAsync();
         }
-        public async Task<List<AlarmSettings>> GetAlarmSettings(int? id)
+        public async Task<List<AlarmSettings>> GetAlarmSettings(string? stid)
         {
-            var  result = _context.AlarmSettings.Where(x => x.Id == id);
-            if (id == null)
+            var result = _context.AlarmSettings.Where(x => x.Stid == stid);
+            if (result == null)
             {
                 result = _context.AlarmSettings;
             }
-            
+
             return await result.ToListAsync();
         }
-        //public async Task<AlarmItem> CreateAlarm(AlarmItem alarmItem)
-        //{
-        //    Console.WriteLine("建立警報");
-
-        //    return alarmItem;
-        //}
+        public async Task<bool> CreateItem(AlarmItem alarmItem)
+        {
+            var item = await _context.AlarmItem.FindAsync(alarmItem.Stid);
+            if (item != null)
+            {
+                return false;
+            }
+            _context.AlarmItem.Add(alarmItem);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        public async Task<bool> CreateSettings(AlarmSettings settings)
+        {
+            //var result = _context.AlarmSettings.FindAsync(settings.)
+            //if (result != null)
+            //{
+            //    return false;
+            //}
+            _context.AlarmSettings.Add(settings);
+            await _context.SaveChangesAsync();
+            return true;
+        }
         public async Task<bool> EditAlarm(List<AlarmSettings> alarms)
         {
-            Console.WriteLine("編輯警報");
             foreach (var alarm in alarms)
             {
                 var alarmItem = await _context.AlarmSettings.FindAsync(alarm.Id);
@@ -78,12 +62,15 @@ namespace AlarmSystem.Services
                 alarmItem.ParameterColumn = alarm.ParameterColumn;
                 alarmItem.ParameterShow = alarm.ParameterShow;
                 alarmItem.Threshold = alarm.Threshold;
+                alarmItem.StartTime = alarm.StartTime;
+                alarmItem.EndTime = alarm.EndTime;
                 alarmItem.NextCheckTime = alarm.NextCheckTime;
             }
 
             await _context.SaveChangesAsync();
             return true;
         }
+
         public async Task<bool> DeleteAlarm(int id)
         {
             var alarmItem = await _context.AlarmItem.FindAsync(id);
@@ -95,14 +82,14 @@ namespace AlarmSystem.Services
             await _context.SaveChangesAsync();
             return true;
         }
-        public async Task<bool> DeleteGroup(string groupId)
+        public async Task<bool> DeleteSet(int id)
         {
-            var group = await _context.AlarmGroup.FindAsync(groupId);
-            if (group == null)
+            var alarmSet = await _context.AlarmSettings.FindAsync(id);
+            if (alarmSet == null)
             {
                 return false;
             }
-            _context.AlarmGroup.Remove(group);
+            _context.AlarmSettings.Remove(alarmSet);
             await _context.SaveChangesAsync();
             return true;
         }

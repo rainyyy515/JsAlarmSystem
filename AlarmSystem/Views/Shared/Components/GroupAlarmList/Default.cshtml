@@ -1,9 +1,14 @@
 ﻿@model IEnumerable<AlarmSystem.ViewModels.GroupAlarmListViewModel>
 
+<li>
+    <a asp-controller="Alarm" asp-action="Index" class="btn text-secondary border-0" type="button">
+        <i class="bi bi-stars"></i>
+        警報群組
+    </a>
+</li>
 @foreach(var group in Model){
-
     <li>
-        <button class="btn text-secondary border-0" type="button" data-bs-toggle="collapse" data-bs-target="#@group.GroupId?.Substring(20)" aria-expanded="false" aria-controls="@group.GroupId.Substring(20)">
+        <button class="btn text-secondary border-0" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_@group.GroupId" aria-expanded="false" aria-controls="collapse_@group.GroupId">
             <i class="bi bi-star-fill"></i>
             @if (group.GroupName == null)
             {
@@ -14,16 +19,13 @@
             }
             <i class="bi bi-caret-right-fill"></i>
         </button>
-        <div class="collapse px-3" id="@group.GroupId.Substring(20)">
+        <div class="collapse px-3" id="collapse_@group.GroupId">
             <div class="card card-body p-0">
                 <ul class="list-unstyled">
-                    <li class="border border-1 rounded-1">
-                        <a class="btn btn-primary border-0 d-block text-start" asp-controller="Alarm" asp-action="Create" asp-route-groupId="@group.GroupId">新增警報項目</a>
-                    </li>
                     @foreach (var alarm in group.AlarmItems!)
                     {
                         <li class="border border-1 rounded-1">
-                            <a class="btn btn-primary border-0 d-block text-start" asp-controller="Alarm" asp-action="Edit" asp-route-stid="@alarm.Stid">@alarm.Stid</a>
+                            <a class="btn btn-primary border-0 d-block text-start" asp-controller="Alarm" asp-action="CreateEdit" asp-route-stid="@alarm.Stid">@alarm.Stid</a>
                         </li>
                     }
                 </ul>

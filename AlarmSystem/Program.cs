@@ -9,6 +9,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<Js_LineAlarmContext>(
         options => options.UseSqlServer(builder.Configuration.GetConnectionString("JsConnection")));
 builder.Services.AddScoped<AlarmService>();
+builder.Services.AddScoped<GroupService>();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 var app = builder.Build();
 
