@@ -1,100 +1,116 @@
-﻿@model List<AlarmSystem.Models.AlarmSettings>
+﻿@model AlarmSystem.ViewModels.AlarmItemViewModel
 @{
     ViewData["Title"] = "Juno Line Alram System";
     ViewBag.Options = new List<string> { "Value1", "Value2", "Value3", "Value4", "Value5", "Value6", "Value7", "Value8" };
 }
+
 <div class="container-fluid">
-    <h1 class="display-6 mt-3 ps-3 fw-bold text-start">編輯 @ViewData["Stid"] 警報項目</h1>
+    <h1 class="display-6 mt-3 ps-3 fw-bold text-start">編輯 @Model.Stid 警報項目</h1>
     <div class="alert alert-primary mb-0" role="alert">
         <label>@ViewData["Error"]</label>
         <label>@TempData["Error"]</label>
         <div class="text-danger" asp-validation-summary="All"></div>
     </div>
-    <button type="button" class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#Modal_set">
-        <i class="bi bi-plus-lg"></i> 新增項目
-    </button>
-    @if (Model.Count != 0)
-    {
-        <form asp-controller="Alarm" asp-action="CreateEdit" method="post">
-            @Html.AntiForgeryToken()
-            <div class="row row-cols-4">
-                @for (int i = 0; i < Model.Count; i++)
-                {
-                    <div class="m-3 p-3 border border-3 rounded-3 col position-relative" style="width:360px;">
-                        <div class="position-absolute end-0 translate-middle-x">
-                            <button type="button" class="btn btn-danger p-0 px-2" data-bs-toggle="modal" data-bs-target="#Modal_@Model[i].Id">
-                                <i class="bi bi-trash3-fill"></i>
-                            </button>
-                        </div>
-                        <div>
-                            <input type="hidden" class="form-control" id="stid_@i" name="Model[@i].Stid" value="@Model[i].Stid">
-                        </div>
-                        <div>
-                            <input type="hidden" class="form-control" id="id_@i" name="Model[@i].Id" value="@Model[i].Id">
-                        </div>
-                        <div class="mb-3 col-6">
-                            <label for="parameterShow_@i" class="form-label" asp-for="@Model[i].ParameterShow"></label>
-                            <input type="text" class="form-control" id="parameterShow_@i" name="Model[@i].ParameterShow" value="@Model[i].ParameterShow">
-                        </div>
-                        <div class="mb-3 col-6">
-                            <label for="parameterColumn_@i" class="form-label" asp-for="@Model[i].ParameterColumn"></label>
-                            <select class="form-select" id="parameterColumn_@i" name="Model[@i].ParameterColumn">
-                                <option selected value="@Model[i].ParameterColumn">@Model[i].ParameterColumn</option>
-                                @ViewBag.Options.Remove(Model[i].ParameterColumn);
-                                @foreach (var option in ViewBag.Options)
-                                {
-                                    <option value="@option">@option</option>
-                                }
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="threshold_@i" class="form-label" asp-for="@Model[i].Threshold"></label>
-                            <input type="number" class="form-control" id="threshold_@i" name="Model[@i].Threshold" min="1" value="@Model[i].Threshold">
-                        </div>
-                        <div class="mb-3 col-6">
-                            <label for="startTime_@i" class="form-label" asp-for="@Model[i].StartTime"></label>
-                            <input type="time" class="form-control" id="startTime_@i" name="Model[@i].StartTime" value="@Model[i].StartTime.ToString("HH:mm")">
-                        </div>
-                        <div class="mb-3 col-6">
-                            <label for="endTime_@i" class="form-label" asp-for="@Model[i].EndTime"></label>
-                            <input type="time" class="form-control" id="endTime_@i" name="Model[@i].EndTime" value="@Model[i].EndTime.ToString("HH:mm")">
-                        </div>
-                    </div>
-                }
-            </div>
-            <div class="d-flex justify-content-end mb-3">
-                <button type="submit" class="btn btn-primary me-3">儲存</button>
-                <button class="btn btn-warning" asp-action="Index">返回</button>
-            </div>
-        </form>
-        @foreach (var item in Model)
+    <div class="border border-3 border-primary-subtle rounded-3 px-3 my-3">
+        @if (Model.Settings != null)
         {
-            <div class="modal fade" id="Modal_@item.Id" tabindex="-1" aria-labelledby="ModalLabel_@item.Id" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <form asp-controller="Alarm" asp-action="DeleteSet" asp-route-Id="@item.Id" method="post">
-                            <div class="modal-header">
-                                <h1 class="modal-title fs-5 text-danger" id="ModalLabel_@item.Id">
-                                    <i class="bi bi-exclamation-triangle-fill"></i> 確定要刪除嗎?
-                                </h1>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                @Html.AntiForgeryToken()
-                                <input type="hidden" name="stid" value="@item.Stid" />
-                                欄位名稱： @item.ParameterShow <br>
-                                欄位： @item.ParameterColumn
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
-                                <button type="submit" class="btn btn-primary">確定</button>
-                            </div>
-                        </form>
+            <form asp-controller="Alarm" asp-action="CreateEdit" method="post">
+                <div class="row align-items-center mt-3">
+                    <div class="col-3">
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#Modal_set">
+                            <i class="bi bi-plus-lg"></i> 新增項目
+                        </button>
+                    </div>
+                    <input type="hidden" name="Stid" value="@Model.Stid"/>
+                    <label for="location" class="col-1 col-form-label" asp-for="@Model.Location"></label>
+                    <div class="col-3">
+                        <input type="text" class="form-control" id="location" name="Location" value="@Model.Location">
+                    </div>
+                    <label for="delayTime" class="col-1 col-form-label" asp-for="@Model.DelayTime"></label>
+                    <div class="col-3">
+                        <input type="number" class="col-2 form-control" id="delayTime" min="1" name="DelayTime" value="@Model.DelayTime">
                     </div>
                 </div>
-            </div>
+                @Html.AntiForgeryToken()
+                <div class="row row-cols-4 row-cols-lg-5">
+                    @for (int i = 0; i < Model.Settings.Count; i++)
+                    {
+                        <div class="m-3 p-3 border border-3 rounded-3 col position-relative" style="width:360px;">
+                            <div class="position-absolute end-0 translate-middle-x">
+                                <button type="button" class="btn btn-danger p-0 px-2" data-bs-toggle="modal" data-bs-target="#Modal_@Model.Settings[i].Id">
+                                    <i class="bi bi-trash3-fill"></i>
+                                </button>
+                            </div>
+                            <div>
+                                <input type="hidden" name="Settings[@i].Stid" value="@Model.Settings[i].Stid">
+                            </div>
+                            <div>
+                                <input type="hidden" name="Settings[@i].Id" value="@Model.Settings[i].Id">
+                            </div>
+                            <div class="mb-3 col-6">
+                                <label for="parameterShow_@i" class="form-label" asp-for="@Model.Settings[i].ParameterShow"></label>
+                                <input type="text" class="form-control" id="parameterShow_@i" name="Settings[@i].ParameterShow" value="@Model.Settings[i].ParameterShow">
+                            </div>
+                            <div class="mb-3 col-6">
+                                <label for="parameterColumn_@i" class="form-label" asp-for="@Model.Settings[i].ParameterColumn"></label>
+                                <select class="form-select" id="parameterColumn_@i" name="Settings[@i].ParameterColumn">
+                                    <option selected value="@Model.Settings[i].ParameterColumn">@Model.Settings[i].ParameterColumn</option>
+                                    @foreach (var option in ViewBag.Options)
+                                    {
+                                        <option value="@option">@option</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="threshold_@i" class="form-label" asp-for="@Model.Settings[i].Threshold"></label>
+                                <input type="number" class="form-control" id="threshold_@i" name="Settings[@i].Threshold" min="1" value="@Model.Settings[i].Threshold">
+                            </div>
+                            <div class="mb-3 col-6">
+                                <label for="startTime_@i" class="form-label" asp-for="@Model.Settings[i].StartTime"></label>
+                                <input type="time" class="form-control" id="startTime_@i" name="Settings[@i].StartTime" value="@Model.Settings[i].StartTime.ToString("HH:mm")">
+                            </div>
+                            <div class="mb-3 col-6">
+                                <label for="endTime_@i" class="form-label" asp-for="@Model.Settings[i].EndTime"></label>
+                                <input type="time" class="form-control" id="endTime_@i" name="Settings[@i].EndTime" value="@Model.Settings[i].EndTime.ToString("HH:mm")">
+                            </div>
+                        </div>
+                    }
+                </div>
+                <div class="d-flex justify-content-end mb-3">
+                    <button type="submit" class="btn btn-primary me-3">儲存</button>
+                    <button class="btn btn-warning" asp-action="Index">返回</button>
+                </div>
+            </form>
+            <!-- Modal 刪除Settings -->
+            @foreach (var item in Model.Settings)
+            {
+                <div class="modal fade" id="Modal_@item.Id" tabindex="-1" aria-labelledby="ModalLabel_@item.Id" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <form asp-controller="Alarm" asp-action="DeleteSet" asp-route-Id="@item.Id" method="post">
+                                <div class="modal-header">
+                                    <h1 class="modal-title fs-5 text-danger" id="ModalLabel_@item.Id">
+                                        <i class="bi bi-exclamation-triangle-fill"></i> 確定要刪除嗎?
+                                    </h1>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="stid" value="@item.Stid" />
+                                    欄位名稱： @item.ParameterShow <br>
+                                    欄位： @item.ParameterColumn
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+                                    <button type="submit" class="btn btn-primary">確定</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            }
         }
-    }
+    </div>
 </div>
 <!-- Modal 新增Settings -->
 <div class="modal fade" id="Modal_set" tabindex="-1" aria-labelledby="ModalLabel_set" aria-hidden="true">
@@ -112,7 +128,7 @@
                     <div class="row row-cols-1">
                         <div class="col">
                             <div>
-                                <input type="hidden" class="form-control" id="stid" name="Stid" value="@ViewData["Stid"]">
+                                <input type="hidden" class="form-control" name="Stid" value="@Model.Stid">
                             </div>
                             <div class="mb-3 col-6">
                                 <label for="parameterShow" class="form-label">欄位名稱</label>

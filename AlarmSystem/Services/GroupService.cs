@@ -68,6 +68,19 @@ namespace AlarmSystem.Services
             {
                 return false;
             }
+            var groupItems = await _context.AlarmItem.Where(x => x.GroupId == groupId).ToListAsync();
+            if (groupItems.Count != 0)
+            {
+                foreach (var item in groupItems)
+                {
+                    var settings = await _context.AlarmSettings.Where(x => x.Stid == item.Stid).ToListAsync();
+                    if (settings.Count != 0)
+                    {
+                        _context.AlarmSettings.RemoveRange(settings);
+                    }
+                }
+                _context.AlarmItem.RemoveRange(groupItems);
+            }
             _context.AlarmGroup.Remove(group);
             await _context.SaveChangesAsync();
             return true;

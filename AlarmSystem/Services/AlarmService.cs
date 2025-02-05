@@ -8,7 +8,7 @@ namespace AlarmSystem.Services
         private readonly Js_LineAlarmContext _context = context;
 
         
-        public async Task<IEnumerable<AlarmItem>> GetAlarmItem(string? groupId)
+        public async Task<List<AlarmItem>> GetAlarmItem(string? groupId)
         {
             var result = _context.AlarmItem.Where(x => x.GroupId == groupId);
             if (groupId == null)
@@ -16,6 +16,14 @@ namespace AlarmSystem.Services
                 result = _context.AlarmItem;
             }
             return await result.ToListAsync();
+        }
+        public async Task<AlarmItem> GetAlarm(string stid)
+        {
+            var result = await _context.AlarmItem.FindAsync(stid);
+            if (result == null) {
+                return null!;
+            }
+            return result;
         }
         public async Task<List<AlarmSettings>> GetAlarmSettings(string? stid)
         {
@@ -45,32 +53,48 @@ namespace AlarmSystem.Services
             //{
             //    return false;
             //}
+            settings.NextCheckTime = DateTime.Now.AddMinutes(5);
             _context.AlarmSettings.Add(settings);
             await _context.SaveChangesAsync();
             return true;
         }
-        public async Task<bool> EditAlarm(List<AlarmSettings> alarms)
+
+        public async Task<bool> EditAlarmItme(AlarmItem item)
+        {
+            var alarmItem = await _context.AlarmItem.FindAsync(item.Stid);
+            if (alarmItem == null)
+            {
+                return false;
+            }
+            alarmItem.Stid = item.Stid;
+            alarmItem.Location = item.Location;
+            alarmItem.DelayTime = item.DelayTime;
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> EditAlarmSet(List<AlarmSettings> alarms)
         {
             foreach (var alarm in alarms)
             {
-                var alarmItem = await _context.AlarmSettings.FindAsync(alarm.Id);
-                if (alarmItem == null)
+                var alarmSet = await _context.AlarmSettings.FindAsync(alarm.Id);
+                if (alarmSet == null)
                 {
                     return false;
                 }
-                alarmItem.Stid = alarm.Stid;
-                alarmItem.ParameterColumn = alarm.ParameterColumn;
-                alarmItem.ParameterShow = alarm.ParameterShow;
-                alarmItem.Threshold = alarm.Threshold;
-                alarmItem.StartTime = alarm.StartTime;
-                alarmItem.EndTime = alarm.EndTime;
-                alarmItem.NextCheckTime = alarm.NextCheckTime;
+                alarmSet.Stid = alarm.Stid;
+                alarmSet.ParameterColumn = alarm.ParameterColumn;
+                alarmSet.ParameterShow = alarm.ParameterShow;
+                alarmSet.Threshold = alarm.Threshold;
+                alarmSet.StartTime = alarm.StartTime;
+                alarmSet.EndTime = alarm.EndTime;
+                alarmSet.NextCheckTime = alarm.NextCheckTime;
             }
 
             await _context.SaveChangesAsync();
             return true;
         }
-
+       
         public async Task<bool> DeleteAlarm(int id)
         {
             var alarmItem = await _context.AlarmItem.FindAsync(id);

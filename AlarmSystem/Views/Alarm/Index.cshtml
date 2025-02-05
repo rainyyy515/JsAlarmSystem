@@ -11,13 +11,18 @@
         </button>
     </form> *@
     <h1 class="display-6 mt-3 fw-bold text-start">警報群組</h1>
-    <div class="d-flex">
+    <div class="alert alert-primary mb-0 text-danger" role="alert">
+        <label>@ViewData["Error"]</label>
+        <label>@TempData["Error"]</label>
+        <div class="text-danger" asp-validation-summary="All"></div>
+    </div>
+    <div class="d-flex mt-3">
         <div>
             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#Modal_group">
                 <i class="bi bi-plus-lg"></i> 新增群組
             </button>
         </div>
-        <div class="overflow-y-scroll border border-5 col-10 mx-auto" style="height:700px;">
+        <div class="overflow-y-scroll border border-5 col-10 mx-auto" style="height:640px;">
             <table class="table table-secondary table-hover">
                 <thead>
                     <tr class="bg-primary">

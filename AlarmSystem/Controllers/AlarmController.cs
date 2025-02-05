@@ -1,6 +1,7 @@
 using AlarmSystem.Dtos;
 using AlarmSystem.Models;
 using AlarmSystem.Services;
+using AlarmSystem.ViewModels;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 
@@ -48,6 +49,7 @@ namespace AlarmSystem.Controllers
             var result = await _alarmService.CreateItem(item);
             if (!result)
             {
+                TempData["Error"] = "新增失敗 Stid 已存在";
                 return RedirectToAction("Index");
             }
             return RedirectToAction("Index");
@@ -55,9 +57,11 @@ namespace AlarmSystem.Controllers
 
         public async Task<IActionResult> CreateEdit(string stid)
         {
+            var alarmItem = await _alarmService.GetAlarm(stid);
+            var vm = _mapper.Map<AlarmItem, AlarmItemViewModel>(alarmItem);
             var alarmSettings = await _alarmService.GetAlarmSettings(stid);
-            ViewData["Stid"] = stid;
-            return View(alarmSettings);
+            vm.Settings = alarmSettings;
+            return View(vm);
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -79,19 +83,21 @@ namespace AlarmSystem.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateEdit(List<AlarmSettings> model)
+        public async Task<IActionResult> CreateEdit(AlarmItemViewModel model)
         {
             if (!ModelState.IsValid)
             {
                 ViewData["Error"] = "驗證失敗";
                 return View(model);
             }
-            foreach (var item in model)
+            foreach (var item in model.Settings!)
             {
                 item.NextCheckTime = DateTime.Now.AddMinutes(5);
             }
-            var editedAlarmItem = await _alarmService.EditAlarm(model);
-            if (!editedAlarmItem)
+            var edit = _mapper.Map<AlarmItemViewModel, AlarmItem>(model);
+            var editedAlarmItem = await _alarmService.EditAlarmItme(edit);
+            var editedAlarmSet = await _alarmService.EditAlarmSet(model.Settings);
+            if (!editedAlarmSet)
             {
                 ViewData["Error"] = "編輯失敗";
                 return View(model);
@@ -123,7 +129,7 @@ namespace AlarmSystem.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteSet(int id,string stid)
+        public async Task<IActionResult> DeleteSet(int id, string stid)
         {
             await _alarmService.DeleteSet(id);
             return RedirectToAction("CreateEdit", new { stid = stid });

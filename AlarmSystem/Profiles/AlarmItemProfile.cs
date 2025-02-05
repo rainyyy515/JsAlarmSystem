@@ -8,7 +8,7 @@ namespace AlarmSystem.Profiles
     {
         public AlarmItemProfile()
         {
-            CreateMap<AlarmSettings, AlarmItemViewModel>().ForMember(dest => dest.TimeInterval, opt => opt.MapFrom(src => $"{src.StartTime} ~ {src.EndTime}"));
+            CreateMap <AlarmItem, AlarmItemViewModel>().ReverseMap();
         }
     }
 }
