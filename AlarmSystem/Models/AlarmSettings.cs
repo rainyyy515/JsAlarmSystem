@@ -2,8 +2,6 @@
 #nullable disable
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
 
 namespace AlarmSystem.Models;
 
@@ -12,19 +10,15 @@ public partial class AlarmSettings
     public int Id { get; set; }
 
     public string Stid { get; set; }
-    [DisplayName("欄位")]
-    [Required(ErrorMessage = "欄位為必填")]
+
     public string ParameterColumn { get; set; }
-    [DisplayName("欄位名稱")]
-    [Required(ErrorMessage = "欄位名稱為必填")]
+
     public string ParameterShow { get; set; }
-    [DisplayName("閾值")]
-    [Required(ErrorMessage ="閾值為必填")]
-    [Range(0,int.MaxValue,ErrorMessage ="閾值必須大於0")]
+
     public int Threshold { get; set; }
-    [DisplayName("開始時間")]
+
     public TimeOnly StartTime { get; set; }
-    [DisplayName("結束時間")]
+
     public TimeOnly EndTime { get; set; }
 
     public DateTime? NextCheckTime { get; set; }

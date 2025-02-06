@@ -16,7 +16,6 @@ namespace AlarmSystem.Controllers
         public async Task<IActionResult> Index()
         {
             IEnumerable<AlarmGroup> alarmGroups = await _groupService.GetGroup(null);
-            //var alarmItemViewModels = _mapper.Map<IEnumerable<AlarmItemViewModel>>(alarmItems);
             return View(alarmGroups);
         }
         [HttpPost]
@@ -31,10 +30,10 @@ namespace AlarmSystem.Controllers
             var result = await _groupService.CreateGroup(group);
             if (!result)
             {
-                TempData["Result"] = $"[{DateTime.Now}]：Token已存在新增失敗";
+                TempData["Error"] = $"{DateTime.Now}：Token已存在新增失敗";
                 return RedirectToAction("Index");
             }
-            TempData["Result"] = $"[{DateTime.Now}]：{group.GroupName} 新增成功";
+            TempData["Result"] = $"{DateTime.Now}：{group.GroupName} 新增成功";
             return RedirectToAction("Index");
         }
 
@@ -97,7 +96,7 @@ namespace AlarmSystem.Controllers
             var edit = _mapper.Map<AlarmItemViewModel, AlarmItem>(model);
             var editedAlarmItem = await _alarmService.EditAlarmItme(edit);
             var editedAlarmSet = await _alarmService.EditAlarmSet(model.Settings);
-            if (!editedAlarmSet)
+            if (!editedAlarmSet || !editedAlarmItem)
             {
                 ViewData["Error"] = "編輯失敗";
                 return View(model);
@@ -132,7 +131,14 @@ namespace AlarmSystem.Controllers
         public async Task<IActionResult> DeleteSet(int id, string stid)
         {
             await _alarmService.DeleteSet(id);
-            return RedirectToAction("CreateEdit", new { stid = stid });
+            return RedirectToAction("CreateEdit", new { stid });
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteItem(string stid)
+        {
+            await _alarmService.DeleteItem(stid);
+            return RedirectToAction("Index");
         }
     }
 }

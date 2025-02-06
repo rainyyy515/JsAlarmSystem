@@ -6,7 +6,8 @@
         警報群組
     </a>
 </li>
-@foreach(var group in Model){
+@foreach (var group in Model)
+{
     <li>
         <button class="btn text-secondary border-0" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_@group.GroupId" aria-expanded="false" aria-controls="collapse_@group.GroupId">
             <i class="bi bi-star-fill"></i>
@@ -14,7 +15,8 @@
             {
                 @group.CreateDate
             }
-            else{
+            else
+            {
                 @group.GroupName
             }
             <i class="bi bi-caret-right-fill"></i>
@@ -25,7 +27,17 @@
                     @foreach (var alarm in group.AlarmItems!)
                     {
                         <li class="border border-1 rounded-1">
-                            <a class="btn btn-primary border-0 d-block text-start" asp-controller="Alarm" asp-action="CreateEdit" asp-route-stid="@alarm.Stid">@alarm.Stid</a>
+                            <a class="btn btn-primary border-0 d-block d-flex justify-content-between" asp-controller="Alarm" asp-action="CreateEdit" asp-route-stid="@alarm.Stid">
+                                <span>@alarm.Stid</span>
+                                @if (alarm.Enable)
+                                {
+                                    <i class="bi bi-circle-fill text-success"></i>
+                                }
+                                else
+                                {
+                                    <i class="bi bi-circle-fill text-danger"></i>
+                                }
+                            </a>
                         </li>
                     }
                 </ul>

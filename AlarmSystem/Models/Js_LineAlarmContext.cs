@@ -51,6 +51,7 @@ public partial class Js_LineAlarmContext : DbContext
                 .HasMaxLength(10)
                 .IsUnicode(false);
             entity.Property(e => e.DelayTime).HasDefaultValue(60);
+            entity.Property(e => e.Enable).HasDefaultValue(true);
             entity.Property(e => e.GroupId)
                 .IsRequired()
                 .HasMaxLength(50)

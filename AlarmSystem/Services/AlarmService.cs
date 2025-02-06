@@ -28,7 +28,7 @@ namespace AlarmSystem.Services
         public async Task<List<AlarmSettings>> GetAlarmSettings(string? stid)
         {
             var result = _context.AlarmSettings.Where(x => x.Stid == stid);
-            if (result == null)
+            if (stid == null)
             {
                 result = _context.AlarmSettings;
             }
@@ -48,11 +48,6 @@ namespace AlarmSystem.Services
         }
         public async Task<bool> CreateSettings(AlarmSettings settings)
         {
-            //var result = _context.AlarmSettings.FindAsync(settings.)
-            //if (result != null)
-            //{
-            //    return false;
-            //}
             settings.NextCheckTime = DateTime.Now.AddMinutes(5);
             _context.AlarmSettings.Add(settings);
             await _context.SaveChangesAsync();
@@ -95,12 +90,17 @@ namespace AlarmSystem.Services
             return true;
         }
        
-        public async Task<bool> DeleteAlarm(int id)
+        public async Task<bool> DeleteItem(string stid)
         {
-            var alarmItem = await _context.AlarmItem.FindAsync(id);
+            var alarmItem = await _context.AlarmItem.FindAsync(stid);
             if (alarmItem == null)
             {
                 return false;
+            }
+            var alarmSets = await _context.AlarmSettings.Where(x => x.Stid == stid).ToListAsync();
+            if (alarmSets.Count != 0)
+            {
+                _context.AlarmSettings.RemoveRange(alarmSets);
             }
             _context.AlarmItem.Remove(alarmItem);
             await _context.SaveChangesAsync();

@@ -18,6 +18,8 @@ namespace AlarmSystem.ViewModels
         [DisplayName("延遲時間(分)")]
         public int DelayTime { get; set; }
 
+        public bool Enable { get; set; }
+
         public List<AlarmSettings>? Settings { get; set; }
     }
 }

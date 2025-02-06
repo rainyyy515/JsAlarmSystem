@@ -15,6 +15,8 @@ public partial class AlarmItem
 
     public int DelayTime { get; set; }
 
+    public bool Enable { get; set; }
+
     public virtual ICollection<AlarmSettings> AlarmSettings { get; set; } = new List<AlarmSettings>();
 
     public virtual AlarmGroup Group { get; set; }

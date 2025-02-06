@@ -24,6 +24,7 @@ namespace AlarmSystem.Services
                                                       Stid = a.Stid,
                                                       Location = a.Location,
                                                       DelayTime = a.DelayTime,
+                                                      Enable = a.Enable
                                                   }).ToList()
                                 }).ToListAsync();
 
