@@ -21,13 +21,9 @@ public partial class Js_LineAlarmContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.HasDefaultSchema("jsene");
-
         modelBuilder.Entity<AlarmGroup>(entity =>
         {
-            entity.HasKey(e => e.GroupId).HasName("PK_LineGroups");
-
-            entity.ToTable("AlarmGroup", "dbo");
+            entity.HasKey(e => e.GroupId);
 
             entity.Property(e => e.GroupId)
                 .HasMaxLength(50)
@@ -37,15 +33,13 @@ public partial class Js_LineAlarmContext : DbContext
                 .HasColumnType("datetime");
             entity.Property(e => e.Enable).HasDefaultValue(true);
             entity.Property(e => e.GroupName)
-                .HasMaxLength(50)
-                .HasDefaultValue("尚未命名");
+                .IsRequired()
+                .HasMaxLength(50);
         });
 
         modelBuilder.Entity<AlarmItem>(entity =>
         {
-            entity.HasKey(e => e.Stid).HasName("PK_AlarmItems");
-
-            entity.ToTable("AlarmItem", "dbo");
+            entity.HasKey(e => e.Stid);
 
             entity.Property(e => e.Stid)
                 .HasMaxLength(10)
@@ -58,37 +52,29 @@ public partial class Js_LineAlarmContext : DbContext
                 .IsUnicode(false);
             entity.Property(e => e.Location)
                 .IsRequired()
-                .HasMaxLength(30);
-
-            entity.HasOne(d => d.Group).WithMany(p => p.AlarmItem)
-                .HasForeignKey(d => d.GroupId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_AlarmItem_AlarmGroup");
+                .HasMaxLength(50);
         });
 
         modelBuilder.Entity<AlarmSettings>(entity =>
         {
+            entity.HasKey(e => e.Id).HasName("PK_AlarmSettimgs");
+
             entity.Property(e => e.EndTime)
                 .HasPrecision(0)
                 .HasDefaultValue(new TimeOnly(23, 59, 59));
             entity.Property(e => e.NextCheckTime).HasColumnType("datetime");
             entity.Property(e => e.ParameterColumn)
                 .IsRequired()
-                .HasMaxLength(10)
+                .HasMaxLength(50)
                 .IsUnicode(false);
             entity.Property(e => e.ParameterShow)
                 .IsRequired()
-                .HasMaxLength(30);
+                .HasMaxLength(50);
             entity.Property(e => e.StartTime).HasPrecision(0);
             entity.Property(e => e.Stid)
                 .IsRequired()
-                .HasMaxLength(10)
+                .HasMaxLength(50)
                 .IsUnicode(false);
-
-            entity.HasOne(d => d.St).WithMany(p => p.AlarmSettings)
-                .HasForeignKey(d => d.Stid)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_AlarmSettings_AlarmItem");
         });
 
         OnModelCreatingPartial(modelBuilder);

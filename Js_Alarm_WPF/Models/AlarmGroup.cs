@@ -5,15 +5,15 @@ using System.Collections.Generic;
 
 namespace AlarmSystem.Models;
 
-public partial class AlarmItem
+public partial class AlarmGroup
 {
-    public string Stid { get; set; }
-
     public string GroupId { get; set; }
 
-    public string Location { get; set; }
-
-    public int DelayTime { get; set; }
+    public string GroupName { get; set; }
 
     public bool Enable { get; set; }
+
+    public DateTime CreateDate { get; set; }
+
+    public virtual ICollection<AlarmItem> AlarmItem { get; set; } = new List<AlarmItem>();
 }

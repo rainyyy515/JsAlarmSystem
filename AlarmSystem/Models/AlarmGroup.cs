@@ -14,6 +14,4 @@ public partial class AlarmGroup
     public bool Enable { get; set; }
 
     public DateTime CreateDate { get; set; }
-
-    public virtual ICollection<AlarmItem> AlarmItem { get; set; } = new List<AlarmItem>();
 }

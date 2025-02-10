@@ -1,4 +1,5 @@
-﻿using System.Configuration;
+﻿using Js_Alarm_WPF.Services;
+using System.Configuration;
 using System.Windows;
 using System.Windows.Threading;
 
@@ -7,13 +8,13 @@ namespace Js_Alarm_WPF
     public partial class MainWindow : Window
     {
         private DispatcherTimer _timer;
-        private readonly string _connectionStr;
+        private readonly AlarmService _alarmService;
 
         public MainWindow()
         {
-            _connectionStr = ConfigurationManager.AppSettings["DbConnectionStr"]!;
             InitializeComponent();
             InitUI();
+            _alarmService = new AlarmService();
         }
         private void StartMonitoring()
         {
@@ -28,15 +29,23 @@ namespace Js_Alarm_WPF
         {
             //資料會有延遲到資料庫，所以需抓前3分鐘的值
             var currentTime = DateTime.Now.AddMinutes(-3);
-            if (currentTime.Second == 3)
+            if (currentTime.Second <= 60)
             {
-                if (LogInfo.Items.Count >= 50)
+                _alarmService.CheckAlarmState();
+                if (LogInfo.Items.Count >= 100)
                 {
+                    LogInfo.Items.Add($"{DateTime.Now}：大於100筆");
+                    var removeCount = LogInfo.Items.Count - 100;
                     // 删除最早UI紀錄，避免無線增長
-                    LogInfo.Items.RemoveAt(0);
+                    for (int i = 0; i < removeCount; i++)
+                    {
+                        if (LogInfo.Items.Count == 0)
+                        {
+                            break;
+                        }
+                        LogInfo.Items.RemoveAt(0);
+                    }
                 }
-
-                LogInfo.Items.Add($"{DateTime.Now}：監測維感 {_connectionStr}");
                 LogInfo.ScrollIntoView(LogInfo.Items[^1]);
             }
         }

@@ -17,9 +17,9 @@ public partial class AlarmSettings
 
     public int Threshold { get; set; }
 
-    public TimeOnly StartTime { get; set; }
+    public TimeSpan StartTime { get; set; }
 
-    public TimeOnly EndTime { get; set; }
+    public TimeSpan EndTime { get; set; }
 
     public DateTime? NextCheckTime { get; set; }
 }

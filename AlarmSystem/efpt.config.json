@@ -24,7 +24,7 @@
          "ObjectType": 0
       },
       {
-         "Name": "[jsene].[AlarmSettings]",
+         "Name": "[dbo].[AlarmSettings]",
          "ObjectType": 0
       }
    ],
