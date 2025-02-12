@@ -27,11 +27,12 @@ namespace Js_Alarm_WPF
         }
         private void Timer_Tick(object sender, EventArgs e)
         {
-            //資料會有延遲到資料庫，所以需抓前3分鐘的值
-            var currentTime = DateTime.Now.AddMinutes(-3);
+            var currentTime = DateTime.Now;
+
+            //每分鐘執行一次
             if (currentTime.Second <= 60)
             {
-                _alarmService.CheckAlarmState();
+                _alarmService.SendAlarmMessage();
                 if (LogInfo.Items.Count >= 100)
                 {
                     LogInfo.Items.Add($"{DateTime.Now}：大於100筆");

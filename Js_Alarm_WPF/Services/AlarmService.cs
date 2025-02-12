@@ -13,6 +13,7 @@ namespace Js_Alarm_WPF.Services
     internal class AlarmService
     {
         private readonly string _connectionStr;
+        private readonly Dictionary<string, DateTime> dissconnectDict = [];
         public AlarmService()
         {
             _connectionStr = ConfigurationManager.AppSettings["DbConnectionStr_Dev"];
@@ -82,32 +83,65 @@ namespace Js_Alarm_WPF.Services
             }, splitOn: "GroupId,Stid");
             return result.Distinct().ToList();
         }
-        public async void CheckAlarmState()
+        public async void SendAlarmMessage()
         {
-            var alarmInfo = GetAlarmInfo();
+            var alarmGroupInfo = GetAlarmInfo();
+            var currentTime = DateTime.Now;
 
-            using var conn = new SqlConnection(_connectionStr);
-            var sql = @"SELECT Stid, Enable FROM AlarmItem";
-            var items = conn.Query<AlarmItemDto>(sql).ToList();
-            foreach (var item in items)
+            foreach (var group in alarmGroupInfo)
             {
-                var apiUrl = $"https://www.jsene.com/ConstructionSite/FuTsu/TSMC/getReal?stid={item.Stid}&list=1,2,3,4,5,6,7,8";
-                var data = await CheckItemState(apiUrl); //0:停用 1:啟用i
-                var isEnabled = data.vals.Length != 0;
-                if (isEnabled != item.Enable)
+                foreach (var item in group.AlarmItemDto)
                 {
-                    var updateSql = "UPDATE AlarmItem SET Enable = @Enable WHERE Stid = @Stid";
-                    conn.Execute(updateSql, new { Enable = isEnabled, item.Stid });
+                    dissconnectDict.TryAdd(item.Stid, DateTime.MinValue);
+
+                    var apiUrl = $"https://www.jsene.com/ConstructionSite/FuTsu/TSMC/getReal?stid={item.Stid}&list=1,2,3,4,5,6,7,8";
+                    var data = await GetSensorDtoAsync(apiUrl);
+                    var isEnabled = data.vals.Length != 0;
+                    if (isEnabled != item.ItemEnable)
+                    {
+                        var updateSql = "UPDATE AlarmItem SET Enable = @Enable WHERE Stid = @Stid";
+                        using var conn = new SqlConnection(_connectionStr);
+                        conn.Execute(updateSql, new { Enable = isEnabled, item.Stid });
+                    }
+                    if (isEnabled)
+                    {
+                        //TODO 開發 set 與 data.vals 的比對邏輯
+                        foreach (var set in item.AlarmSettingsDto)
+                        {
+                            if (currentTime <= set.NextCheckTime)
+                            {
+                                continue;
+                            }
+                            var val = data.vals.Where(x => x.parameter == set.ParameterColumn).FirstOrDefault();
+                            if (val != null)
+                            {
+                                if (val.val > set.Threshold)
+                                {
+                                    //TODO 發送警報邏輯
+                                    set.NextCheckTime = currentTime.AddMinutes(item.DelayTime);
+                                    using var conn = new SqlConnection(_connectionStr);
+                                    conn.Execute("UPDATE AlarmSettings SET NextCheckTime = @NextCheckTime WHERE Stid = @Stid", new { set.NextCheckTime, set.Stid });
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (currentTime - dissconnectDict[item.Stid] > TimeSpan.FromHours(24))
+                        {
+                            //TODO 發送斷線警報邏輯
+                            dissconnectDict[item.Stid] = currentTime;
+                        }
+                    }
                 }
-                //TODO 開發 alarmInfo 與 data.vals 的比對邏輯
             }
         }
         /// <summary>
-        /// Check the state of the API
+        /// 取得項目資料
         /// </summary>
         /// <param name="apiUrl"></param>
-        /// <returns>True 表示啟用 false反之</returns>
-        private static async Task<SensorDto> CheckItemState(string apiUrl)
+        /// <returns>感測器分鐘值資料</returns>
+        private static async Task<SensorDto> GetSensorDtoAsync(string apiUrl)
         {
             using var client = new HttpClient();
             var response = await client.GetAsync(apiUrl);

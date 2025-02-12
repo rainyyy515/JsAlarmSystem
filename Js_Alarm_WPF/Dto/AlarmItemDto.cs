@@ -16,7 +16,7 @@ namespace Js_Alarm_WPF.Dto
 
         public int DelayTime { get; set; }
 
-        public bool Enable { get; set; }
+        public bool ItemEnable { get; set; }
 
         public virtual ICollection<AlarmSetDto> AlarmSettingsDto { get; set; }
 

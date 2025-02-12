@@ -13,5 +13,4 @@
         public string unit { get; set; }
         public float val { get; set; }
     }
-
 }
