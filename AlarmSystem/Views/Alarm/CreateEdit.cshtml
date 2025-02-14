@@ -1,7 +1,6 @@
 ﻿@model AlarmSystem.ViewModels.AlarmItemViewModel
 @{
     ViewData["Title"] = "Juno Line Alram System";
-    ViewBag.Options = new List<string> { "Value1", "Value2", "Value3", "Value4", "Value5", "Value6", "Value7", "Value8" };
 }
 
 <div class="container-fluid">
@@ -37,13 +36,19 @@
                         </button>
                     </div>
                     <input type="hidden" name="Stid" value="@Model.Stid" />
-                    <label for="location" class="col-1 col-form-label" asp-for="@Model.Location"></label>
-                    <div class="col-3">
+                    <div class="col-2">
+                        <label for="location" class="col-form-label" asp-for="@Model.Location"></label>
                         <input type="text" class="form-control" id="location" name="Location" value="@Model.Location">
                     </div>
-                    <label for="delayTime" class="col-1 col-form-label" asp-for="@Model.DelayTime"></label>
-                    <div class="col-3">
+                    <div class="col-1">
+                        <label for="delayTime" class="col-form-label" asp-for="@Model.DelayTime"></label>
                         <input type="number" class="col-2 form-control" id="delayTime" min="1" name="DelayTime" value="@Model.DelayTime">
+                    </div>
+                    <div class="form-check col-1 mt-4">
+                        <input class="form-check-input" type="checkbox" name="BreakAlarm" value="true" id="flexCheckChecked" @(Model.BreakAlarm ? "checked" : "")>
+                        <label class="form-check-label" for="flexCheckChecked">
+                            斷線通知
+                        </label>
                     </div>
                 </div>
                 @Html.AntiForgeryToken()
@@ -68,13 +73,7 @@
                             </div>
                             <div class="mb-3 col-6">
                                 <label for="parameterColumn_@i" class="form-label" asp-for="@Model.Settings[i].ParameterColumn"></label>
-                                <select class="form-select" id="parameterColumn_@i" name="Settings[@i].ParameterColumn">
-                                    <option selected value="@Model.Settings[i].ParameterColumn">@Model.Settings[i].ParameterColumn</option>
-                                    @foreach (var option in ViewBag.Options)
-                                    {
-                                        <option value="@option">@option</option>
-                                    }
-                                </select>
+                                <input type="text" class="form-control" id="parameterColumn_@i" name="Settings[@i].ParameterColumn" value="@Model.Settings[i].ParameterColumn">
                             </div>
                             <div class="mb-3">
                                 <label for="threshold_@i" class="form-label" asp-for="@Model.Settings[i].Threshold"></label>
@@ -153,16 +152,10 @@
                                 </div>
                             </div>
                             <div class="mb-3 col-6">
-                                <label for="parameterColumn" class="form-label">欄位</label>
-                                <select class="form-select" id="parameterColumn" name="ParameterColumn" required>
-                                    <option selected disabled value="">選擇欄位</option>
-                                    @foreach (var option in ViewBag.Options)
-                                    {
-                                        <option value="@option">@option</option>
-                                    }
-                                </select>
+                                <label for="parameterColumn" class="form-label text-danger">API Parameter</label>
+                                <input type="text" class="form-control" id="parameterColumn" name="ParameterColumn" value="" required>
                                 <div class="invalid-feedback">
-                                    欄位必填
+                                    欄位必填(且須對應API的Parameter)
                                 </div>
                             </div>
                             <div class="mb-3">
@@ -204,7 +197,7 @@
                 </div>
                 <div class="modal-body">
                     @Html.AntiForgeryToken()
-                    <input type="hidden" name="stid" value="@Model.Stid"/>
+                    <input type="hidden" name="stid" value="@Model.Stid" />
                     位置： @Model.Location
                 </div>
                 <div class="modal-footer">

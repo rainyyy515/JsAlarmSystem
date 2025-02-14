@@ -64,6 +64,7 @@ namespace AlarmSystem.Services
             alarmItem.Stid = item.Stid;
             alarmItem.Location = item.Location;
             alarmItem.DelayTime = item.DelayTime;
+            alarmItem.BreakAlarm = item.BreakAlarm;
             await _context.SaveChangesAsync();
             return true;
         }

@@ -28,7 +28,7 @@
          "ObjectType": 0
       }
    ],
-   "UiHint": "desktop-yanwei\\sqlexpress.Js_LineAlarm.jsene",
+   "UiHint": "laptop-yanwei.Js_LineAlarm.dbo",
    "UncountableWords": null,
    "UseBoolPropertiesWithoutDefaultSql": false,
    "UseDatabaseNames": true,

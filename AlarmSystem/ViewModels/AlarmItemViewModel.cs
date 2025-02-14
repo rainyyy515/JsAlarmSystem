@@ -11,7 +11,7 @@ namespace AlarmSystem.ViewModels
         public string? Stid { get; set; }
 
         [Required(ErrorMessage ="地點必填")]
-        [DisplayName("地點")]
+        [DisplayName("地點名稱")]
         public string? Location { get; set; }
 
         [Range(1, int.MaxValue, ErrorMessage = "延遲時間必須大於0")]
@@ -19,6 +19,8 @@ namespace AlarmSystem.ViewModels
         public int DelayTime { get; set; }
 
         public bool Enable { get; set; }
+
+        public bool BreakAlarm { get; set; }
 
         public List<AlarmSettings>? Settings { get; set; }
     }

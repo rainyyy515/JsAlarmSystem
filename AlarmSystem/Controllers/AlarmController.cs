@@ -86,8 +86,13 @@ namespace AlarmSystem.Controllers
         {
             if (!ModelState.IsValid)
             {
-                ViewData["Error"] = "驗證失敗";
-                return View(model);
+                TempData["Error"] = "驗證失敗";
+                return RedirectToAction("CreateEdit", new { stid = model.Stid });
+            }
+            if (model.Settings == null)
+            {
+                TempData["Error"] = "至少要添加一筆監測參數";
+                return RedirectToAction("CreateEdit", new { stid = model.Stid });
             }
             foreach (var item in model.Settings!)
             {
@@ -98,8 +103,8 @@ namespace AlarmSystem.Controllers
             var editedAlarmSet = await _alarmService.EditAlarmSet(model.Settings);
             if (!editedAlarmSet || !editedAlarmItem)
             {
-                ViewData["Error"] = "編輯失敗";
-                return View(model);
+                TempData["Error"] = "編輯失敗";
+                return RedirectToAction("CreateEdit", new { stid = model.Stid });
             }
             return RedirectToAction("Index");
         }
