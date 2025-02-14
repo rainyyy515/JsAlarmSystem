@@ -16,4 +16,6 @@ public partial class AlarmItem
     public int DelayTime { get; set; }
 
     public bool Enable { get; set; }
+
+    public bool BreakAlarm { get; set; }
 }

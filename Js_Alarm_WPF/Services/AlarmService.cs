@@ -44,7 +44,7 @@ namespace Js_Alarm_WPF.Services
             var sql = @"
                 SELECT 
                     ag.GroupId, ag.Enable,
-                    ai.GroupId,ai.Stid,ai.Location, ai.DelayTime, ai.Enable AS ItemEnable,
+                    ai.GroupId,ai.Stid,ai.Location, ai.DelayTime, ai.Enable AS ItemEnable, ai.BreakAlarm,
                     aset.Stid,aset.ParameterColumn, aset.ParameterShow, aset.Threshold, aset.StartTime, aset.EndTime, aset.NextCheckTime
                 FROM 
                     AlarmGroup ag
@@ -127,10 +127,13 @@ namespace Js_Alarm_WPF.Services
                     }
                     else
                     {
-                        if (currentTime - dissconnectDict[item.Stid] > TimeSpan.FromHours(24))
+                        if (item.BreakAlarm)
                         {
-                            //TODO 發送斷線警報邏輯
-                            dissconnectDict[item.Stid] = currentTime;
+                            if (currentTime - dissconnectDict[item.Stid] > TimeSpan.FromHours(12))
+                            {
+                                //TODO 發送斷線警報邏輯
+                                dissconnectDict[item.Stid] = currentTime;
+                            }
                         }
                     }
                 }

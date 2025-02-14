@@ -18,6 +18,8 @@ namespace Js_Alarm_WPF.Dto
 
         public bool ItemEnable { get; set; }
 
+        public bool BreakAlarm { get; set; }
+
         public virtual ICollection<AlarmSetDto> AlarmSettingsDto { get; set; }
 
     }
