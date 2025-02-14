@@ -7,14 +7,16 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace AlarmSystem.Controllers
 {
-    public class AlarmController(AlarmService alarmService, IMapper mapper, GroupService groupService) : Controller
+    public class AlarmController(AlarmService alarmService, IMapper mapper, GroupService groupService, IConfiguration configuration) : Controller
     {
         private readonly AlarmService _alarmService = alarmService;
         private readonly GroupService _groupService = groupService;
         private readonly IMapper _mapper = mapper;
+        private readonly string _postApiUrl = configuration["PostApiUrl"]!;
 
         public async Task<IActionResult> Index()
         {
+            ViewData["PostApiUrl"] = _postApiUrl;
             IEnumerable<AlarmGroup> alarmGroups = await _groupService.GetGroup(null);
             return View(alarmGroups);
         }

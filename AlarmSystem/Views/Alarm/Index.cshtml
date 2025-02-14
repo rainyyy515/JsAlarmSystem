@@ -2,7 +2,6 @@
 @{
     ViewData["Title"] = "Juno Line Alram System";
 }
-
 <div class="text-center px-3">
     @* <form class="d-flex" role="search">
         <input class="form-control me-2" type="search" placeholder="群組名稱查詢" aria-label="Search">
@@ -30,6 +29,7 @@
                         <th scope="col">Token</th>
                         <th scope="col">群組名稱</th>
                         <th scope="col">狀態</th>
+                        <th scope="col">群組警報測試</th>
                         <th scope="col">建立時間</th>
                         <th scope="col" style="width:150px;"></th>
                     </tr>
@@ -49,6 +49,11 @@
                                 {
                                     <i class="bi bi-circle-fill text-danger">未啟用</i>
                                 }
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-primary p-0 px-2" onclick="AlarmSendTest('@ViewData["PostApiUrl"]','@alarmGroup.GroupId')">
+                                    <i class="bi bi-send"></i>發送測試
+                                </button>
                             </td>
                             <td>@alarmGroup.CreateDate</td>
                             <td>
@@ -219,3 +224,25 @@
         </div>
     </div>
 </div>
+@section Scripts {
+    <script>
+        function AlarmSendTest(url,groupId) {
+            $.ajax({
+                type: "POST",
+                url: url,
+                contentType:"application/json",
+                data: JSON.stringify({
+                    "Title": groupId,
+                    "Mes": "Test",
+                    "Image": ""
+                }),
+                success: function (data) {
+                    alert(data);
+                },
+                error: function (data) {
+                    alert(data);
+                }
+            });
+        }
+    </script>
+}
