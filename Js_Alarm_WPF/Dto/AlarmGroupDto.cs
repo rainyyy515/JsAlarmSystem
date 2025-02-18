@@ -11,6 +11,8 @@ namespace Js_Alarm_WPF.Dto
     {
         public string GroupId { get; set; }
 
+        public string GroupName { get; set; }
+
         public bool Enable { get; set; }
 
         public ICollection<AlarmItemDto> AlarmItemDto { get; set; }

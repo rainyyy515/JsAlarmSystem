@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Js_Alarm_WPF"
         mc:Ignorable="d"
-        Title="警報判斷程序" Height="500" Width="400">
+        Title="警報判斷程序" Height="500" Width="450">
     <Grid Background="#285185">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>

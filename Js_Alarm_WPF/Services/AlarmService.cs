@@ -7,16 +7,21 @@ using Dapper;
 using Js_Alarm_WPF.Dto;
 using System.Net.Http;
 using Newtonsoft.Json;
+using System.Text;
+using Serilog;
 
 namespace Js_Alarm_WPF.Services
 {
     internal class AlarmService
     {
         private readonly string _connectionStr;
+        private readonly string _linePostUrl;
         private readonly Dictionary<string, DateTime> dissconnectDict = [];
+        private readonly HttpClient _httpClient = new HttpClient();
         public AlarmService()
         {
             _connectionStr = ConfigurationManager.AppSettings["DbConnectionStr_Dev"];
+            _linePostUrl = ConfigurationManager.AppSettings["LinePostUrl"];
         }
         public List<AlarmGroupDto> GetAlarmInfo()
         {
@@ -43,7 +48,7 @@ namespace Js_Alarm_WPF.Services
             //return groupsDto;
             var sql = @"
                 SELECT 
-                    ag.GroupId, ag.Enable,
+                    ag.GroupId, ag.GroupName, ag.Enable,
                     ai.GroupId,ai.Stid,ai.Location, ai.DelayTime, ai.Enable AS ItemEnable, ai.BreakAlarm,
                     aset.Stid,aset.ParameterColumn, aset.ParameterShow, aset.Threshold, aset.StartTime, aset.EndTime, aset.NextCheckTime
                 FROM 
@@ -87,52 +92,78 @@ namespace Js_Alarm_WPF.Services
         {
             var alarmGroupInfo = GetAlarmInfo();
             var currentTime = DateTime.Now;
-
             foreach (var group in alarmGroupInfo)
             {
-                foreach (var item in group.AlarmItemDto)
+                if (group.Enable)
                 {
-                    dissconnectDict.TryAdd(item.Stid, DateTime.MinValue);
+                    foreach (var item in group.AlarmItemDto)
+                    {
+                        dissconnectDict.TryAdd(item.Stid, DateTime.MinValue);
 
-                    var apiUrl = $"https://www.jsene.com/ConstructionSite/FuTsu/TSMC/getReal?stid={item.Stid}&list=1,2,3,4,5,6,7,8";
-                    var data = await GetSensorDtoAsync(apiUrl);
-                    var isEnabled = data.vals.Length != 0;
-                    if (isEnabled != item.ItemEnable)
-                    {
-                        var updateSql = "UPDATE AlarmItem SET Enable = @Enable WHERE Stid = @Stid";
-                        using var conn = new SqlConnection(_connectionStr);
-                        conn.Execute(updateSql, new { Enable = isEnabled, item.Stid });
-                    }
-                    if (isEnabled)
-                    {
-                        //TODO 開發 set 與 data.vals 的比對邏輯
-                        foreach (var set in item.AlarmSettingsDto)
+                        var apiUrl = $"https://www.jsene.com/ConstructionSite/FuTsu/TSMC/getReal?stid={item.Stid}&list=1,2,3,4,5,6,7,8";
+                        var data = await GetSensorDtoAsync(apiUrl);
+                        var isEnabled = data.vals.Length != 0;
+                        if (isEnabled != item.ItemEnable)
                         {
-                            if (currentTime <= set.NextCheckTime)
+                            var updateSql = "UPDATE AlarmItem SET Enable = @Enable WHERE Stid = @Stid";
+                            using var conn = new SqlConnection(_connectionStr);
+                            conn.Execute(updateSql, new { Enable = isEnabled, item.Stid });
+                            Log.Information($"UPDATE AlarmItem SET Enable = {isEnabled} WHERE Stid = {item.Stid}");
+                        }
+                        if (isEnabled)
+                        {
+                            //set 與 data.vals 的比對邏輯
+                            foreach (var set in item.AlarmSettingsDto)
                             {
-                                continue;
-                            }
-                            var val = data.vals.Where(x => x.parameter == set.ParameterColumn).FirstOrDefault();
-                            if (val != null)
-                            {
-                                if (val.val > set.Threshold)
+                                if (currentTime <= set.NextCheckTime)
                                 {
-                                    //TODO 發送警報邏輯
-                                    set.NextCheckTime = currentTime.AddMinutes(item.DelayTime);
-                                    using var conn = new SqlConnection(_connectionStr);
-                                    conn.Execute("UPDATE AlarmSettings SET NextCheckTime = @NextCheckTime WHERE Stid = @Stid", new { set.NextCheckTime, set.Stid });
+                                    continue;
+                                }
+                                var val = data.vals.Where(x => x.parameter == set.ParameterColumn).FirstOrDefault();
+                                if (val != null)
+                                {
+                                    if (val.val > set.Threshold && currentTime.TimeOfDay > set.StartTime && currentTime.TimeOfDay < set.EndTime)
+                                    {
+                                        // 發送閾值警報
+                                        var linePost = new LinePostDto()
+                                        {
+                                            Url = _linePostUrl,
+                                            Payload = new Payload
+                                            {
+                                                Title = item.GroupId,
+                                                Mes = $"【{group.GroupName}】\r\n【STID】： {item.Stid}\r\n【位置】： {item.Location}\r\n【屬性】： {set.ParameterShow}\r\n【時間】： {data.time}\r\n【數值】： {val.val}\r\n【狀態】： 超過閾值({set.Threshold})",
+                                                Image = ""
+                                            }
+                                        };
+                                        SendLineMessage(linePost);
+                                        set.NextCheckTime = currentTime.AddMinutes(item.DelayTime);
+                                        using var conn = new SqlConnection(_connectionStr);
+                                        conn.Execute("UPDATE AlarmSettings SET NextCheckTime = @NextCheckTime WHERE Stid = @Stid", new { set.NextCheckTime, set.Stid });
+                                        Log.Information($"UPDATE AlarmSettings SET NextCheckTime = {set.NextCheckTime} WHERE Stid = {set.Stid}");
+                                    }
                                 }
                             }
                         }
-                    }
-                    else
-                    {
-                        if (item.BreakAlarm)
+                        else
                         {
-                            if (currentTime - dissconnectDict[item.Stid] > TimeSpan.FromHours(12))
+                            if (item.BreakAlarm)
                             {
-                                //TODO 發送斷線警報邏輯
-                                dissconnectDict[item.Stid] = currentTime;
+                                if (currentTime - dissconnectDict[item.Stid] > TimeSpan.FromMinutes(5))
+                                {
+                                    // 發送斷線警報
+                                    var linePost = new LinePostDto()
+                                    {
+                                        Url = _linePostUrl,
+                                        Payload = new Payload
+                                        {
+                                            Title = item.GroupId,
+                                            Mes = $"【{group.GroupName}】\r\n【STID】： {item.Stid}\r\n【位置】： {item.Location}\r\n【時間】： {currentTime}\r\n【狀態】： 感測器斷線",
+                                            Image = ""
+                                        }
+                                    };
+                                    SendLineMessage(linePost);
+                                    dissconnectDict[item.Stid] = currentTime;
+                                }
                             }
                         }
                     }
@@ -151,10 +182,33 @@ namespace Js_Alarm_WPF.Services
             if (response.IsSuccessStatusCode)
             {
                 var content = await response.Content.ReadAsStringAsync();
-                var data = JsonConvert.DeserializeObject<SensorDto>(content);
-                return data;
+                try
+                {
+                    var data = JsonConvert.DeserializeObject<SensorDto>(content);
+                    return data;
+                }
+                catch (Exception e)
+                {
+                    Log.Error($"{e.ToString()}，content：{content}");
+                }
             }
             return new SensorDto();
+        }
+        public async Task SendLineMessage(LinePostDto postDto)
+        {
+            try
+            {
+                var json = JsonConvert.SerializeObject(postDto.Payload);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                var response = await _httpClient.PostAsync(postDto.Url, content);
+                response.EnsureSuccessStatusCode();
+                var result = response.Content.ReadAsStringAsync();
+                Log.Information($"Line Notify Response: {result.Result}");
+            }
+            catch (Exception)
+            {
+                Log.Error("Line Notify Error");
+            }
         }
     }
 }

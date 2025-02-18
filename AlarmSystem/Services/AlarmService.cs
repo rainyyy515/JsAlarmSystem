@@ -48,7 +48,7 @@ namespace AlarmSystem.Services
         }
         public async Task<bool> CreateSettings(AlarmSettings settings)
         {
-            settings.NextCheckTime = DateTime.Now.AddMinutes(5);
+            settings.NextCheckTime = DateTime.Now.AddMinutes(1);
             _context.AlarmSettings.Add(settings);
             await _context.SaveChangesAsync();
             return true;
