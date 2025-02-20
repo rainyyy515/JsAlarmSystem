@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Js_Alarm_WPF.Dto
+﻿namespace Js_Alarm_WPF.Dto
 {
     public class LinePostDto
     {

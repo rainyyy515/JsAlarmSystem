@@ -17,35 +17,15 @@ namespace Js_Alarm_WPF.Services
         private readonly string _connectionStr;
         private readonly string _linePostUrl;
         private readonly Dictionary<string, DateTime> dissconnectDict = [];
-        private readonly HttpClient _httpClient = new HttpClient();
+        private readonly HttpClient _httpClient = new();
+
         public AlarmService()
         {
-            _connectionStr = ConfigurationManager.AppSettings["DbConnectionStr_Dev"];
+            _connectionStr = ConfigurationManager.AppSettings["DbConnectionStr"];
             _linePostUrl = ConfigurationManager.AppSettings["LinePostUrl"];
         }
         public List<AlarmGroupDto> GetAlarmInfo()
         {
-            //var groupsDto = new List<AlarmGroupDto>();
-            //using var conn = new SqlConnection(_connectionStr);
-            //var groups = conn.Query<AlarmGroup>("SELECT GroupId,Enable FROM AlarmGroup Where Enable = 1");
-            //foreach (var group in groups)
-            //{
-            //    groupsDto.Add(new AlarmGroupDto
-            //    {
-            //        GroupId = group.GroupId,
-            //        Enable = group.Enable,
-            //        AlarmItemDto = conn.Query<AlarmItemDto>("SELECT Stid,DelayTime,Enable FROM AlarmItem Where GroupId = @GroupId", new { GroupId = group.GroupId }).ToList()
-            //    });
-            //}
-            //foreach (var group in groupsDto)
-            //{
-            //    foreach (var item in group.AlarmItemDto)
-            //    {
-            //        var settings = conn.Query<AlarmSetDto>("SELECT Stid,ParameterColumn,ParameterShow,Threshold,StartTime,EndTime,NextCheckTime FROM AlarmSettings Where Stid = @Stid", new { Stid = item.Stid }).ToList();
-            //        item.AlarmSettingsDto = [.. settings];
-            //    }
-            //}
-            //return groupsDto;
             var sql = @"
                 SELECT 
                     ag.GroupId, ag.GroupName, ag.Enable,
@@ -66,7 +46,7 @@ namespace Js_Alarm_WPF.Services
                 if (!alarmGroupDict.TryGetValue(group.GroupId, out AlarmGroupDto groupDto))
                 {
                     groupDto = group;
-                    groupDto.AlarmItemDto = new List<AlarmItemDto>();
+                    groupDto.AlarmItemDto = [];
                     alarmGroupDict.Add(groupDto.GroupId, groupDto);
                 }
                 if (item != null)
@@ -75,7 +55,7 @@ namespace Js_Alarm_WPF.Services
                     if (existingItem == null)
                     {
                         groupDto.AlarmItemDto.Add(item);
-                        item.AlarmSettingsDto = new List<AlarmSetDto>();
+                        item.AlarmSettingsDto = [];
                         existingItem = item;
                     }
                     if (set != null)
@@ -88,6 +68,7 @@ namespace Js_Alarm_WPF.Services
             }, splitOn: "GroupId,Stid");
             return result.Distinct().ToList();
         }
+
         public async void SendAlarmMessage()
         {
             var alarmGroupInfo = GetAlarmInfo();
@@ -128,13 +109,30 @@ namespace Js_Alarm_WPF.Services
                                         var linePost = new LinePostDto()
                                         {
                                             Url = _linePostUrl,
-                                            Payload = new Payload
+                                        };
+                                        //判斷有無風向
+                                        var ws = data.vals.Where(x => x.parameter == "WS").FirstOrDefault();
+                                        var wd = data.vals.Where(x => x.parameter == "WD").FirstOrDefault();
+                                        if (ws != null && wd != null)
+                                        {
+                                            string[] direction = ["北風","東北風","東風","東南風","南風","西南風","西風","西北風","北風"];
+                                            var windDirection = (wd.val > 360) ? "資料錯誤" : direction[(int)Math.Round(wd.val / 45)];
+                                            linePost.Payload = new Payload
                                             {
                                                 Title = item.GroupId,
-                                                Mes = $"【{group.GroupName}】\r\n【STID】： {item.Stid}\r\n【位置】： {item.Location}\r\n【屬性】： {set.ParameterShow}\r\n【時間】： {data.time}\r\n【數值】： {val.val}\r\n【狀態】： 超過閾值({set.Threshold})",
+                                                Mes = $"【{group.GroupName}】\r\n【STID】： {item.Stid}\r\n【位置】： {item.Location}\r\n【時間】： {data.time}\r\n【屬性】： {val.parameter}\r\n【風向】： {windDirection}\r\n【風速】： {ws.val}\r\n【數值】： {val.val}\r\n【狀態】： 超過閾值({set.Threshold})",
                                                 Image = ""
-                                            }
-                                        };
+                                            };
+                                        }
+                                        else
+                                        {
+                                            linePost.Payload = new Payload
+                                            {
+                                                Title = item.GroupId,
+                                                Mes = $"【{group.GroupName}】\r\n【STID】： {item.Stid}\r\n【位置】： {item.Location}\r\n【時間】： {data.time}\r\n【屬性】： {val.parameter}\r\n【數值】： {val.val}\r\n【狀態】： 超過閾值({set.Threshold})",
+                                                Image = ""
+                                            };
+                                        }
                                         SendLineMessage(linePost);
                                         set.NextCheckTime = currentTime.AddMinutes(item.DelayTime);
                                         using var conn = new SqlConnection(_connectionStr);
@@ -148,7 +146,7 @@ namespace Js_Alarm_WPF.Services
                         {
                             if (item.BreakAlarm)
                             {
-                                if (currentTime - dissconnectDict[item.Stid] > TimeSpan.FromMinutes(5))
+                                if (currentTime - dissconnectDict[item.Stid] > TimeSpan.FromHours(12))
                                 {
                                     // 發送斷線警報
                                     var linePost = new LinePostDto()
@@ -170,6 +168,7 @@ namespace Js_Alarm_WPF.Services
                 }
             }
         }
+
         /// <summary>
         /// 取得項目資料
         /// </summary>
@@ -189,11 +188,12 @@ namespace Js_Alarm_WPF.Services
                 }
                 catch (Exception e)
                 {
-                    Log.Error($"{e.ToString()}，content：{content}");
+                    Log.Error($"{e.ToString}，content：{content}");
                 }
             }
             return new SensorDto();
         }
+
         public async Task SendLineMessage(LinePostDto postDto)
         {
             try

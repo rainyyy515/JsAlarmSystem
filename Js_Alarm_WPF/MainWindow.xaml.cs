@@ -18,7 +18,7 @@ namespace Js_Alarm_WPF
         private void StartMonitoring()
         {
             var now = DateTime.Now;
-            int msToNextMinute = (60 - now.Second) * 1000 - now.Millisecond; // 計算下一分鐘的 00 秒還有多少毫秒
+            int msToNextMinute = (60 - now.Second) * 1000 - now.Millisecond;
             LogInfo.Items.Add($"{DateTime.Now}：警報系統在{60 - now.Second}秒後 啟動");
 
             _timer = new Timer(TimerCallback, null, msToNextMinute, 60 * 1000);
