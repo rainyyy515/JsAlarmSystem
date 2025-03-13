@@ -1,7 +1,4 @@
 ﻿using System.Configuration;
-
-
-
 using Microsoft.Data.SqlClient;
 using Dapper;
 using Js_Alarm_WPF.Dto;
@@ -21,8 +18,8 @@ namespace Js_Alarm_WPF.Services
 
         public AlarmService()
         {
-            _connectionStr = ConfigurationManager.AppSettings["DbConnectionStr"];
-            _linePostUrl = ConfigurationManager.AppSettings["LinePostUrl"];
+            _connectionStr = ConfigurationManager.AppSettings["DbConnectionStr_Dev"];
+            _linePostUrl = ConfigurationManager.AppSettings["LinePostUrl_Dev"];
         }
         public List<AlarmGroupDto> GetAlarmInfo()
         {
@@ -120,7 +117,7 @@ namespace Js_Alarm_WPF.Services
                                             linePost.Payload = new Payload
                                             {
                                                 Title = item.GroupId,
-                                                Mes = $"【{group.GroupName}】\r\n【STID】： {item.Stid}\r\n【位置】： {item.Location}\r\n【時間】： {data.time}\r\n【屬性】： {val.parameter}\r\n【風向】： {windDirection}\r\n【風速】： {ws.val}\r\n【數值】： {val.val}\r\n【狀態】： 超過閾值({set.Threshold})",
+                                                Mes = $"【{group.GroupName}】\r\n【STID】： {item.Stid}\r\n【位置】： {item.Location}\r\n【時間】： {data.time}\r\n【屬性】： {val.parameter}\r\n【風向】： {windDirection}\r\n【風速】： {ws.val} m/s\r\n【數值】： {val.val}\r\n【狀態】： 超過閾值({set.Threshold})",
                                                 Image = ""
                                             };
                                         }
@@ -136,7 +133,7 @@ namespace Js_Alarm_WPF.Services
                                         SendLineMessage(linePost);
                                         set.NextCheckTime = currentTime.AddMinutes(item.DelayTime);
                                         using var conn = new SqlConnection(_connectionStr);
-                                        conn.Execute("UPDATE AlarmSettings SET NextCheckTime = @NextCheckTime WHERE Stid = @Stid", new { set.NextCheckTime, set.Stid });
+                                        conn.Execute("UPDATE AlarmSettings SET NextCheckTime = @NextCheckTime WHERE Stid = @Stid AND Threshold = @Threshold", new { set.NextCheckTime, set.Stid, set.Threshold });
                                         Log.Information($"UPDATE AlarmSettings SET NextCheckTime = {set.NextCheckTime} WHERE Stid = {set.Stid}");
                                     }
                                 }
