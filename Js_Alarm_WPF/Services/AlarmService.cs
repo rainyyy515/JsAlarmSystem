@@ -110,14 +110,14 @@ namespace Js_Alarm_WPF.Services
                                         //判斷有無風向
                                         var ws = data.vals.Where(x => x.parameter == "WS").FirstOrDefault();
                                         var wd = data.vals.Where(x => x.parameter == "WD").FirstOrDefault();
-                                        if (ws != null && wd != null)
+                                        if (ws != null && wd != null && set.ParameterColumn != "WS")
                                         {
                                             string[] direction = ["北風","東北風","東風","東南風","南風","西南風","西風","西北風","北風"];
                                             var windDirection = (wd.val > 360) ? "資料錯誤" : direction[(int)Math.Round(wd.val / 45)];
                                             linePost.Payload = new Payload
                                             {
                                                 Title = item.GroupId,
-                                                Mes = $"【{group.GroupName}】\r\n【STID】： {item.Stid}\r\n【位置】： {item.Location}\r\n【時間】： {data.time}\r\n【屬性】： {val.parameter}\r\n【風向】： {windDirection}\r\n【風速】： {ws.val} m/s\r\n【數值】： {val.val}\r\n【狀態】： 超過閾值({set.Threshold})",
+                                                Mes = $"【{group.GroupName}】\r\n【STID】： {item.Stid}\r\n【位置】： {item.Location}\r\n【時間】： {data.time}\r\n【屬性】： {set.ParameterShow}\r\n【風向】： {windDirection}\r\n【風速】： {ws.val} m/s\r\n【數值】： {val.val}\r\n【狀態】： 超過閾值({set.Threshold})",
                                                 Image = ""
                                             };
                                         }
@@ -126,15 +126,15 @@ namespace Js_Alarm_WPF.Services
                                             linePost.Payload = new Payload
                                             {
                                                 Title = item.GroupId,
-                                                Mes = $"【{group.GroupName}】\r\n【STID】： {item.Stid}\r\n【位置】： {item.Location}\r\n【時間】： {data.time}\r\n【屬性】： {val.parameter}\r\n【數值】： {val.val}\r\n【狀態】： 超過閾值({set.Threshold})",
+                                                Mes = $"【{group.GroupName}】\r\n【STID】： {item.Stid}\r\n【位置】： {item.Location}\r\n【時間】： {data.time}\r\n【屬性】： {set.ParameterShow}\r\n【數值】： {val.val}\r\n【狀態】： 超過閾值({set.Threshold})",
                                                 Image = ""
                                             };
                                         }
                                         SendLineMessage(linePost);
                                         set.NextCheckTime = currentTime.AddMinutes(item.DelayTime);
                                         using var conn = new SqlConnection(_connectionStr);
-                                        conn.Execute("UPDATE AlarmSettings SET NextCheckTime = @NextCheckTime WHERE Stid = @Stid AND Threshold = @Threshold", new { set.NextCheckTime, set.Stid, set.Threshold });
-                                        Log.Information($"UPDATE AlarmSettings SET NextCheckTime = {set.NextCheckTime} WHERE Stid = {set.Stid}");
+                                        conn.Execute("UPDATE AlarmSettings SET NextCheckTime = @NextCheckTime WHERE Stid = @Stid AND ParameterColumn = @ParameterColumn Threshold = @Threshold", new { set.NextCheckTime, set.Stid, set.ParameterColumn, set.Threshold });
+                                        Log.Information($"UPDATE AlarmSettings SET NextCheckTime = {set.NextCheckTime} WHERE Stid = {set.Stid} AND ParameterColumn = {set.ParameterColumn} AND Threshold = {set.Threshold}");
                                     }
                                 }
                             }
