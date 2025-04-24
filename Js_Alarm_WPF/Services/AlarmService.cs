@@ -18,8 +18,8 @@ namespace Js_Alarm_WPF.Services
 
         public AlarmService()
         {
-            _connectionStr = ConfigurationManager.AppSettings["DbConnectionStr_Dev"];
-            _linePostUrl = ConfigurationManager.AppSettings["LinePostUrl_Dev"];
+            _connectionStr = ConfigurationManager.AppSettings["DbConnectionStr"];
+            _linePostUrl = ConfigurationManager.AppSettings["LinePostUrl"];
         }
         public List<AlarmGroupDto> GetAlarmInfo()
         {
@@ -133,7 +133,7 @@ namespace Js_Alarm_WPF.Services
                                         SendLineMessage(linePost);
                                         set.NextCheckTime = currentTime.AddMinutes(item.DelayTime);
                                         using var conn = new SqlConnection(_connectionStr);
-                                        conn.Execute("UPDATE AlarmSettings SET NextCheckTime = @NextCheckTime WHERE Stid = @Stid AND ParameterColumn = @ParameterColumn Threshold = @Threshold", new { set.NextCheckTime, set.Stid, set.ParameterColumn, set.Threshold });
+                                        conn.Execute("UPDATE AlarmSettings SET NextCheckTime = @NextCheckTime WHERE Stid = @Stid AND ParameterColumn = @ParameterColumn AND Threshold = @Threshold", new { set.NextCheckTime, set.Stid, set.ParameterColumn, set.Threshold });
                                         Log.Information($"UPDATE AlarmSettings SET NextCheckTime = {set.NextCheckTime} WHERE Stid = {set.Stid} AND ParameterColumn = {set.ParameterColumn} AND Threshold = {set.Threshold}");
                                     }
                                 }
